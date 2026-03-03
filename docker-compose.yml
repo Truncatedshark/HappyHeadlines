@@ -1,0 +1,203 @@
+services:
+
+  # ── Load Balancer ──────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - articleservice1
+      - articleservice2
+      - articleservice3
+
+  # ── ArticleService (x-axis: 3 instances) ──────────────────────────────────
+  articleservice1:
+    build: ./ArticleService
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      DB_AFRICA:       "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA:   "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA:         "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA:    "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_EUROPE:       "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA: "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA: "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL:       "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+    depends_on:
+      - db_africa
+      - db_antarctica
+      - db_asia
+      - db_australia
+      - db_europe
+      - db_northamerica
+      - db_southamerica
+      - db_global
+
+  articleservice2:
+    build: ./ArticleService
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      DB_AFRICA:       "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA:   "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA:         "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA:    "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_EUROPE:       "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA: "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA: "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL:       "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+    depends_on:
+      - db_africa
+      - db_antarctica
+      - db_asia
+      - db_australia
+      - db_europe
+      - db_northamerica
+      - db_southamerica
+      - db_global
+
+  articleservice3:
+    build: ./ArticleService
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      DB_AFRICA:       "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA:   "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA:         "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA:    "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_EUROPE:       "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA: "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA: "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL:       "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+    depends_on:
+      - db_africa
+      - db_antarctica
+      - db_asia
+      - db_australia
+      - db_europe
+      - db_northamerica
+      - db_southamerica
+      - db_global
+
+  # ── ArticleDatabase (z-axis: 1 shard per continent + 1 global) ────────────
+  db_africa:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_africa_data:/var/lib/postgresql/data
+
+  db_antarctica:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_antarctica_data:/var/lib/postgresql/data
+
+  db_asia:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_asia_data:/var/lib/postgresql/data
+
+  db_australia:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_australia_data:/var/lib/postgresql/data
+
+  db_europe:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_europe_data:/var/lib/postgresql/data
+
+  db_northamerica:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_northamerica_data:/var/lib/postgresql/data
+
+  db_southamerica:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_southamerica_data:/var/lib/postgresql/data
+
+  db_global:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       articles
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_global_data:/var/lib/postgresql/data
+
+  # ── CommentService ────────────────────────────────────────────────────────────
+  commentservice:
+    build: ./CommentService
+    environment:
+      ASPNETCORE_URLS:       "http://+:8080"
+      DB_COMMENTS:           "Host=db_comments;Port=5432;Database=comments;Username=postgres;Password=postgres"
+      PROFANITY_SERVICE_URL: "http://profanityservice:8080"
+    depends_on:
+      - db_comments
+      - profanityservice
+
+  db_comments:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       comments
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_comments_data:/var/lib/postgresql/data
+
+  # ── ProfanityService ──────────────────────────────────────────────────────────
+  profanityservice:
+    build: ./ProfanityService
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      DB_PROFANITY:    "Host=db_profanity;Port=5432;Database=profanity;Username=postgres;Password=postgres"
+    depends_on:
+      - db_profanity
+
+  db_profanity:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       profanity
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_profanity_data:/var/lib/postgresql/data
+
+volumes:
+  db_africa_data:
+  db_antarctica_data:
+  db_asia_data:
+  db_australia_data:
+  db_europe_data:
+  db_northamerica_data:
+  db_southamerica_data:
+  db_global_data:
+  db_comments_data:
+  db_profanity_data:

@@ -1,0 +1,94 @@
+using ArticleService.Data;
+using ArticleService.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace ArticleService.Endpoints;
+
+public static class ArticleEndpoints
+{
+    public static void MapArticleEndpoints(this WebApplication app)
+    {
+        var group = app.MapGroup("/articles");
+
+        // POST /articles
+        group.MapPost("/", async (CreateArticleRequest request, ArticleDbContextFactory factory) =>
+        {
+            if (!Enum.TryParse<Region>(request.Region, ignoreCase: true, out var region))
+                return Results.BadRequest($"Invalid region '{request.Region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
+
+            var article = new Article
+            {
+                Title = request.Title,
+                Content = request.Content,
+                Author = request.Author,
+                Region = region
+            };
+
+            await using var db = factory.CreateForRegion(region);
+            db.Articles.Add(article);
+            await db.SaveChangesAsync();
+
+            return Results.Created($"/articles/{article.Id}?region={region}", article);
+        });
+
+        // GET /articles?region=Europe
+        group.MapGet("/", async ([FromQuery] string region, ArticleDbContextFactory factory) =>
+        {
+            if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
+                return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
+
+            await using var db = factory.CreateForRegion(parsedRegion);
+            var articles = await db.Articles.ToListAsync();
+            return Results.Ok(articles);
+        });
+
+        // GET /articles/{id}?region=Europe
+        group.MapGet("/{id:guid}", async (Guid id, [FromQuery] string region, ArticleDbContextFactory factory) =>
+        {
+            if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
+                return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
+
+            await using var db = factory.CreateForRegion(parsedRegion);
+            var article = await db.Articles.FindAsync(id);
+            return article is null ? Results.NotFound() : Results.Ok(article);
+        });
+
+        // PUT /articles/{id}?region=Europe
+        group.MapPut("/{id:guid}", async (Guid id, [FromQuery] string region, UpdateArticleRequest request, ArticleDbContextFactory factory) =>
+        {
+            if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
+                return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
+
+            await using var db = factory.CreateForRegion(parsedRegion);
+            var article = await db.Articles.FindAsync(id);
+            if (article is null) return Results.NotFound();
+
+            article.Title = request.Title;
+            article.Content = request.Content;
+            article.Author = request.Author;
+            article.UpdatedAt = DateTime.UtcNow;
+
+            await db.SaveChangesAsync();
+            return Results.Ok(article);
+        });
+
+        // DELETE /articles/{id}?region=Europe
+        group.MapDelete("/{id:guid}", async (Guid id, [FromQuery] string region, ArticleDbContextFactory factory) =>
+        {
+            if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
+                return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
+
+            await using var db = factory.CreateForRegion(parsedRegion);
+            var article = await db.Articles.FindAsync(id);
+            if (article is null) return Results.NotFound();
+
+            db.Articles.Remove(article);
+            await db.SaveChangesAsync();
+            return Results.NoContent();
+        });
+    }
+}
+
+public record CreateArticleRequest(string Title, string Content, string Author, string Region);
+public record UpdateArticleRequest(string Title, string Content, string Author);
