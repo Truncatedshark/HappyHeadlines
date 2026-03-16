@@ -1,5 +1,79 @@
 services:
 
+  # ── Observability ─────────────────────────────────────────────────────────
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "5341:80"       # UI + ingestion API at http://localhost:5341
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_NOAUTHENTICATION: "true"   # no login required in dev
+    volumes:
+      - seq_data:/data
+    # Log retention: configure at http://localhost:5341 → Settings → Retention Policies
+
+  jaeger:
+    image: jaegertracing/jaeger:latest       # v2: supported, v1 reached EOL Dec 2025
+    ports:
+      - "16686:16686"   # Jaeger UI at http://localhost:16686
+      - "4317:4317"     # OTLP gRPC (services export traces here)
+    environment:
+      MEMORY_MAX_TRACES: "10000"    # auto-evict oldest traces when limit is reached
+
+  # ── Caching ───────────────────────────────────────────────────────────────
+  redis_articles:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis_comments:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Metrics ───────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"     # UI at http://localhost:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"     # Dashboard at http://localhost:3000 (no login required)
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  # ── Message Broker ────────────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"     # AMQP (services connect here)
+      - "15672:15672"   # Management UI at http://localhost:15672 (guest/guest)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ── Load Balancer ──────────────────────────────────────────────────────────
   nginx:
     image: nginx:alpine
@@ -8,76 +82,103 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - articleservice1
-      - articleservice2
-      - articleservice3
+      articleservice1:
+        condition: service_started
+      articleservice2:
+        condition: service_started
+      articleservice3:
+        condition: service_started
 
   # ── ArticleService (x-axis: 3 instances) ──────────────────────────────────
   articleservice1:
     build: ./ArticleService
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      DB_AFRICA:       "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_ANTARCTICA:   "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_ASIA:         "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_AUSTRALIA:    "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_EUROPE:       "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_NORTHAMERICA: "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_SOUTHAMERICA: "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_GLOBAL:       "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      ASPNETCORE_URLS:      "http://+:8080"
+      DB_AFRICA:            "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA:        "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA:              "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA:         "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_EUROPE:            "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA:      "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA:      "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL:            "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      RABBITMQ_HOST:        "rabbitmq"
+      SEQ_URL:              "http://seq"
+      JAEGER_OTLP_ENDPOINT: "http://jaeger:4317"
+      REDIS_ARTICLES:       "redis_articles:6379"
     depends_on:
-      - db_africa
-      - db_antarctica
-      - db_asia
-      - db_australia
-      - db_europe
-      - db_northamerica
-      - db_southamerica
-      - db_global
+      db_africa:        { condition: service_healthy }
+      db_antarctica:    { condition: service_healthy }
+      db_asia:          { condition: service_healthy }
+      db_australia:     { condition: service_healthy }
+      db_europe:        { condition: service_healthy }
+      db_northamerica:  { condition: service_healthy }
+      db_southamerica:  { condition: service_healthy }
+      db_global:        { condition: service_healthy }
+      rabbitmq:         { condition: service_healthy }
+      redis_articles:   { condition: service_healthy }
+      seq:              { condition: service_started }
+      jaeger:           { condition: service_started }
 
   articleservice2:
     build: ./ArticleService
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      DB_AFRICA:       "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_ANTARCTICA:   "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_ASIA:         "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_AUSTRALIA:    "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_EUROPE:       "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_NORTHAMERICA: "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_SOUTHAMERICA: "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_GLOBAL:       "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      ASPNETCORE_URLS:      "http://+:8080"
+      DB_AFRICA:            "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA:        "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA:              "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA:         "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_EUROPE:            "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA:      "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA:      "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL:            "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      RABBITMQ_HOST:        "rabbitmq"
+      SEQ_URL:              "http://seq"
+      JAEGER_OTLP_ENDPOINT: "http://jaeger:4317"
+      REDIS_ARTICLES:       "redis_articles:6379"
     depends_on:
-      - db_africa
-      - db_antarctica
-      - db_asia
-      - db_australia
-      - db_europe
-      - db_northamerica
-      - db_southamerica
-      - db_global
+      db_africa:        { condition: service_healthy }
+      db_antarctica:    { condition: service_healthy }
+      db_asia:          { condition: service_healthy }
+      db_australia:     { condition: service_healthy }
+      db_europe:        { condition: service_healthy }
+      db_northamerica:  { condition: service_healthy }
+      db_southamerica:  { condition: service_healthy }
+      db_global:        { condition: service_healthy }
+      rabbitmq:         { condition: service_healthy }
+      redis_articles:   { condition: service_healthy }
+      seq:              { condition: service_started }
+      jaeger:           { condition: service_started }
 
   articleservice3:
     build: ./ArticleService
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      DB_AFRICA:       "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_ANTARCTICA:   "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_ASIA:         "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_AUSTRALIA:    "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_EUROPE:       "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_NORTHAMERICA: "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_SOUTHAMERICA: "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
-      DB_GLOBAL:       "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      ASPNETCORE_URLS:      "http://+:8080"
+      DB_AFRICA:            "Host=db_africa;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA:        "Host=db_antarctica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA:              "Host=db_asia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA:         "Host=db_australia;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_EUROPE:            "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA:      "Host=db_northamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA:      "Host=db_southamerica;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL:            "Host=db_global;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      RABBITMQ_HOST:        "rabbitmq"
+      SEQ_URL:              "http://seq"
+      JAEGER_OTLP_ENDPOINT: "http://jaeger:4317"
+      REDIS_ARTICLES:       "redis_articles:6379"
     depends_on:
-      - db_africa
-      - db_antarctica
-      - db_asia
-      - db_australia
-      - db_europe
-      - db_northamerica
-      - db_southamerica
-      - db_global
+      db_africa:        { condition: service_healthy }
+      db_antarctica:    { condition: service_healthy }
+      db_asia:          { condition: service_healthy }
+      db_australia:     { condition: service_healthy }
+      db_europe:        { condition: service_healthy }
+      db_northamerica:  { condition: service_healthy }
+      db_southamerica:  { condition: service_healthy }
+      db_global:        { condition: service_healthy }
+      rabbitmq:         { condition: service_healthy }
+      redis_articles:   { condition: service_healthy }
+      seq:              { condition: service_started }
+      jaeger:           { condition: service_started }
 
   # ── ArticleDatabase (z-axis: 1 shard per continent + 1 global) ────────────
   db_africa:
@@ -88,6 +189,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_africa_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_antarctica:
     image: postgres:16-alpine
@@ -97,6 +203,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_antarctica_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_asia:
     image: postgres:16-alpine
@@ -106,6 +217,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_asia_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_australia:
     image: postgres:16-alpine
@@ -115,6 +231,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_australia_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_europe:
     image: postgres:16-alpine
@@ -124,6 +245,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_europe_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_northamerica:
     image: postgres:16-alpine
@@ -133,6 +259,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_northamerica_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_southamerica:
     image: postgres:16-alpine
@@ -142,6 +273,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_southamerica_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db_global:
     image: postgres:16-alpine
@@ -151,17 +287,79 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_global_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── PublisherService ──────────────────────────────────────────────────────────
+  publisherservice:
+    build: ./PublisherService
+    ports:
+      - "8084:8080"
+    environment:
+      ASPNETCORE_URLS:      "http://+:8080"
+      RABBITMQ_HOST:        "rabbitmq"
+      SEQ_URL:              "http://seq"
+      JAEGER_OTLP_ENDPOINT: "http://jaeger:4317"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      seq:
+        condition: service_started
+      jaeger:
+        condition: service_started
+
+  # ── DraftService ─────────────────────────────────────────────────────────────
+  draftservice:
+    build: ./DraftService
+    ports:
+      - "8083:8080"
+    environment:
+      ASPNETCORE_URLS:      "http://+:8080"
+      DB_DRAFTS:            "Host=db_drafts;Port=5432;Database=drafts;Username=postgres;Password=postgres"
+      SEQ_URL:              "http://seq"
+      JAEGER_OTLP_ENDPOINT: "http://jaeger:4317"
+    depends_on:
+      db_drafts:
+        condition: service_healthy
+      seq:
+        condition: service_started
+      jaeger:
+        condition: service_started
+
+  db_drafts:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       drafts
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_drafts_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # ── CommentService ────────────────────────────────────────────────────────────
   commentservice:
     build: ./CommentService
+    ports:
+      - "8081:8080"
     environment:
       ASPNETCORE_URLS:       "http://+:8080"
       DB_COMMENTS:           "Host=db_comments;Port=5432;Database=comments;Username=postgres;Password=postgres"
       PROFANITY_SERVICE_URL: "http://profanityservice:8080"
+      REDIS_COMMENTS:        "redis_comments:6379"
     depends_on:
-      - db_comments
-      - profanityservice
+      db_comments:
+        condition: service_healthy
+      redis_comments:
+        condition: service_healthy
+      profanityservice:
+        condition: service_started
 
   db_comments:
     image: postgres:16-alpine
@@ -171,15 +369,23 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_comments_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # ── ProfanityService ──────────────────────────────────────────────────────────
   profanityservice:
     build: ./ProfanityService
+    ports:
+      - "8082:8080"
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       DB_PROFANITY:    "Host=db_profanity;Port=5432;Database=profanity;Username=postgres;Password=postgres"
     depends_on:
-      - db_profanity
+      db_profanity:
+        condition: service_healthy
 
   db_profanity:
     image: postgres:16-alpine
@@ -189,8 +395,18 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_profanity_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
+  rabbitmq_data:
+  seq_data:
+  prometheus_data:
+  grafana_data:
+  db_drafts_data:
   db_africa_data:
   db_antarctica_data:
   db_asia_data:

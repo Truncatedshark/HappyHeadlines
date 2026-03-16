@@ -1,10 +1,12 @@
 using CommentService.BackgroundServices;
+using CommentService.Caching;
 using CommentService.Clients;
 using CommentService.Data;
 using CommentService.Endpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,9 @@ builder.Services
         });
     });
 
+// ── Cache ─────────────────────────────────────────────────────────────────────
+builder.Services.AddSingleton<CommentCache>();
+
 // ── Background service to re-process Pending comments ─────────────────────────
 builder.Services.AddHostedService<PendingCommentProcessor>();
 
@@ -79,5 +84,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapCommentEndpoints();
+app.MapMetrics();   // exposes /metrics for Prometheus scraping
 
 app.Run();

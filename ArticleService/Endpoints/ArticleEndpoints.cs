@@ -1,3 +1,4 @@
+using ArticleService.Caching;
 using ArticleService.Data;
 using ArticleService.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +12,8 @@ public static class ArticleEndpoints
     {
         var group = app.MapGroup("/articles");
 
-        // POST /articles
-        group.MapPost("/", async (CreateArticleRequest request, ArticleDbContextFactory factory) =>
+        // POST /articles — writes go directly to DB and also update the item cache
+        group.MapPost("/", async (CreateArticleRequest request, ArticleDbContextFactory factory, ArticleCache cache) =>
         {
             if (!Enum.TryParse<Region>(request.Region, ignoreCase: true, out var region))
                 return Results.BadRequest($"Invalid region '{request.Region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
@@ -29,33 +30,50 @@ public static class ArticleEndpoints
             db.Articles.Add(article);
             await db.SaveChangesAsync();
 
+            // Cache the new article so it's immediately available for single-item reads
+            await cache.SetArticleAsync(article);
+
             return Results.Created($"/articles/{article.Id}?region={region}", article);
         });
 
-        // GET /articles?region=Europe
-        group.MapGet("/", async ([FromQuery] string region, ArticleDbContextFactory factory) =>
+        // GET /articles?region=Europe — cache-aside: Redis first, DB on miss
+        group.MapGet("/", async ([FromQuery] string region, ArticleDbContextFactory factory, ArticleCache cache) =>
         {
             if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
                 return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
 
+            var cached = await cache.GetArticlesAsync(parsedRegion);
+            if (cached is not null)
+                return Results.Ok(cached);
+
+            // Cache miss — load from DB and populate cache for next time
             await using var db = factory.CreateForRegion(parsedRegion);
             var articles = await db.Articles.ToListAsync();
+            await cache.SetArticlesAsync(parsedRegion, articles);
             return Results.Ok(articles);
         });
 
-        // GET /articles/{id}?region=Europe
-        group.MapGet("/{id:guid}", async (Guid id, [FromQuery] string region, ArticleDbContextFactory factory) =>
+        // GET /articles/{id}?region=Europe — cache-aside on single item
+        group.MapGet("/{id:guid}", async (Guid id, [FromQuery] string region, ArticleDbContextFactory factory, ArticleCache cache) =>
         {
             if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
                 return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
 
+            var cached = await cache.GetArticleAsync(id, parsedRegion);
+            if (cached is not null)
+                return Results.Ok(cached);
+
+            // Cache miss — load from DB and populate cache
             await using var db = factory.CreateForRegion(parsedRegion);
             var article = await db.Articles.FindAsync(id);
-            return article is null ? Results.NotFound() : Results.Ok(article);
+            if (article is null) return Results.NotFound();
+
+            await cache.SetArticleAsync(article);
+            return Results.Ok(article);
         });
 
-        // PUT /articles/{id}?region=Europe
-        group.MapPut("/{id:guid}", async (Guid id, [FromQuery] string region, UpdateArticleRequest request, ArticleDbContextFactory factory) =>
+        // PUT /articles/{id}?region=Europe — writes go to DB; invalidate cached entries
+        group.MapPut("/{id:guid}", async (Guid id, [FromQuery] string region, UpdateArticleRequest request, ArticleDbContextFactory factory, ArticleCache cache) =>
         {
             if (!Enum.TryParse<Region>(region, ignoreCase: true, out var parsedRegion))
                 return Results.BadRequest($"Invalid region '{region}'. Valid values: {string.Join(", ", Enum.GetNames<Region>())}");
@@ -70,6 +88,10 @@ public static class ArticleEndpoints
             article.UpdatedAt = DateTime.UtcNow;
 
             await db.SaveChangesAsync();
+
+            // Re-cache the updated article so stale data isn't served
+            await cache.SetArticleAsync(article);
+
             return Results.Ok(article);
         });
 
