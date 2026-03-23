@@ -1,0 +1,371 @@
+{
+  "info": {
+    "name": "HappyHeadlines",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "publisher_url",  "value": "http://localhost:8084" },
+    { "key": "nginx_url",      "value": "http://localhost:80" },
+    { "key": "comment_url",    "value": "http://localhost:8081" },
+    { "key": "profanity_url",  "value": "http://localhost:8082" },
+    { "key": "draft_url",      "value": "http://localhost:8083" },
+    { "key": "article_id",     "value": "PASTE-ARTICLE-ID-HERE" },
+    { "key": "article_region", "value": "Europe" },
+    { "key": "comment_id",     "value": "PASTE-COMMENT-ID-HERE" },
+    { "key": "draft_id",       "value": "PASTE-DRAFT-ID-HERE" }
+  ],
+  "item": [
+
+    {
+      "name": "1 — Publish Flow (happy path)",
+      "item": [
+        {
+          "name": "Publish article",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{publisher_url}}/publish", "host": ["{{publisher_url}}"], "path": ["publish"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Happy News Today\",\n  \"content\": \"Everything is going great in the world!\",\n  \"author\": \"Demo Reporter\",\n  \"region\": \"Europe\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get articles (via nginx)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{nginx_url}}/articles?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get single article",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{nginx_url}}/articles/{{article_id}}?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles", "{{article_id}}"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "2 — Cache Demo",
+      "item": [
+        {
+          "name": "Get articles — 1st call (cache MISS)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{nginx_url}}/articles?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get articles — 2nd call (cache HIT)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{nginx_url}}/articles?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get comments — 1st call (cache MISS)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{comment_url}}/comments?articleId={{article_id}}",
+              "host": ["{{comment_url}}"],
+              "path": ["comments"],
+              "query": [{ "key": "articleId", "value": "{{article_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get comments — 2nd call (cache HIT)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{comment_url}}/comments?articleId={{article_id}}",
+              "host": ["{{comment_url}}"],
+              "path": ["comments"],
+              "query": [{ "key": "articleId", "value": "{{article_id}}" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "3 — Circuit Breaker Demo",
+      "item": [
+        {
+          "name": "Post comment — normal (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{comment_url}}/comments", "host": ["{{comment_url}}"], "path": ["comments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"articleId\": \"{{article_id}}\",\n  \"author\": \"Alice\",\n  \"content\": \"Great article!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Post comment — circuit OPEN (202 Accepted)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{comment_url}}/comments", "host": ["{{comment_url}}"], "path": ["comments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"articleId\": \"{{article_id}}\",\n  \"author\": \"Bob\",\n  \"content\": \"Interesting read!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Post comment — contains profanity (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{comment_url}}/comments", "host": ["{{comment_url}}"], "path": ["comments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"articleId\": \"{{article_id}}\",\n  \"author\": \"Troll\",\n  \"content\": \"This is badword content\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "ArticleService",
+      "item": [
+        {
+          "name": "GET all articles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{nginx_url}}/articles?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        },
+        {
+          "name": "GET single article",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{nginx_url}}/articles/{{article_id}}?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles", "{{article_id}}"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        },
+        {
+          "name": "PUT update article",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{nginx_url}}/articles/{{article_id}}?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles", "{{article_id}}"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"content\": \"Updated content here.\",\n  \"author\": \"Demo Reporter\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE article",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{nginx_url}}/articles/{{article_id}}?region={{article_region}}",
+              "host": ["{{nginx_url}}"],
+              "path": ["articles", "{{article_id}}"],
+              "query": [{ "key": "region", "value": "{{article_region}}" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "PublisherService",
+      "item": [
+        {
+          "name": "POST publish article",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{publisher_url}}/publish", "host": ["{{publisher_url}}"], "path": ["publish"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Breaking: Good Things Happening\",\n  \"content\": \"Positive news from around the world.\",\n  \"author\": \"Jane Reporter\",\n  \"region\": \"Europe\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "CommentService",
+      "item": [
+        {
+          "name": "POST comment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{comment_url}}/comments", "host": ["{{comment_url}}"], "path": ["comments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"articleId\": \"{{article_id}}\",\n  \"author\": \"Alice\",\n  \"content\": \"What a wonderful article!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET comments for article",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{comment_url}}/comments?articleId={{article_id}}",
+              "host": ["{{comment_url}}"],
+              "path": ["comments"],
+              "query": [{ "key": "articleId", "value": "{{article_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "DELETE comment",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{comment_url}}/comments/{{comment_id}}",
+              "host": ["{{comment_url}}"],
+              "path": ["comments", "{{comment_id}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "ProfanityService",
+      "item": [
+        {
+          "name": "GET banned words",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{profanity_url}}/words", "host": ["{{profanity_url}}"], "path": ["words"] }
+          }
+        },
+        {
+          "name": "POST add banned word",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{profanity_url}}/words", "host": ["{{profanity_url}}"], "path": ["words"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"word\": \"terrible\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST check text",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{profanity_url}}/check", "host": ["{{profanity_url}}"], "path": ["check"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"This is a badword example\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE banned word",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{profanity_url}}/words/terrible", "host": ["{{profanity_url}}"], "path": ["words", "terrible"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "DraftService",
+      "item": [
+        {
+          "name": "POST create draft",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{draft_url}}/drafts", "host": ["{{draft_url}}"], "path": ["drafts"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Draft: Upcoming Good News\",\n  \"content\": \"Work in progress...\",\n  \"author\": \"Jane Reporter\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET all drafts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{draft_url}}/drafts", "host": ["{{draft_url}}"], "path": ["drafts"] }
+          }
+        },
+        {
+          "name": "GET single draft",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{draft_url}}/drafts/{{draft_id}}", "host": ["{{draft_url}}"], "path": ["drafts", "{{draft_id}}"] }
+          }
+        },
+        {
+          "name": "PUT update draft",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{draft_url}}/drafts/{{draft_id}}", "host": ["{{draft_url}}"], "path": ["drafts", "{{draft_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Draft: Revised Title\",\n  \"content\": \"Updated draft content.\",\n  \"author\": \"Jane Reporter\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE draft",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{draft_url}}/drafts/{{draft_id}}", "host": ["{{draft_url}}"], "path": ["drafts", "{{draft_id}}"] }
+          }
+        }
+      ]
+    }
+
+  ]
+}
