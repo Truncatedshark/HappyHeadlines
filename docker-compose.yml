@@ -375,6 +375,91 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── SubscriberService ─────────────────────────────────────────────────────────
+  subscriberservice:
+    build: ./SubscriberService
+    ports:
+      - "8085:8080"
+    environment:
+      ASPNETCORE_URLS:        "http://+:8080"
+      DB_SUBSCRIBERS:         "Host=db_subscribers;Port=5432;Database=subscribers;Username=postgres;Password=postgres"
+      RABBITMQ_HOST:          "rabbitmq"
+      SEQ_URL:                "http://seq"
+      JAEGER_OTLP_ENDPOINT:   "http://jaeger:4317"
+      FEATUREHUB_EDGE_URL:    "http://featurehub:8085/"
+      FEATUREHUB_API_KEY:     "4a4f1e25-55d4-49d8-b6be-b700e2646645/P5yxP5d6TQbuTtvGLlYD79IGiIpcKb0GbahBaDuo"
+    depends_on:
+      db_subscribers:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      featurehub:
+        condition: service_started
+      seq:
+        condition: service_started
+      jaeger:
+        condition: service_started
+
+  db_subscribers:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       subscribers
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_subscribers_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── FeatureHub (release toggles) ──────────────────────────────────────────────
+  featurehub:
+    image: featurehub/party-server:latest
+    ports:
+      - "8090:8085"   # Admin UI + Edge API at http://localhost:8090
+    volumes:
+      - ./featurehub/app-config:/etc/app-config:ro
+    depends_on:
+      db_featurehub:
+        condition: service_healthy
+
+  db_featurehub:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       featurehub
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_featurehub_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── NewsletterService ─────────────────────────────────────────────────────────
+  newsletterservice:
+    build: ./NewsletterService
+    ports:
+      - "8086:8080"
+    environment:
+      ASPNETCORE_URLS:        "http://+:8080"
+      SUBSCRIBER_SERVICE_URL: "http://subscriberservice:8080"
+      RABBITMQ_HOST:          "rabbitmq"
+      SEQ_URL:                "http://seq"
+      JAEGER_OTLP_ENDPOINT:   "http://jaeger:4317"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      seq:
+        condition: service_started
+      jaeger:
+        condition: service_started
+      # subscriberservice is intentionally NOT listed here — fault isolation means
+      # NewsletterService must start and operate even if SubscriberService is down
+
   # ── ProfanityService ──────────────────────────────────────────────────────────
   profanityservice:
     build: ./ProfanityService
@@ -417,3 +502,5 @@ volumes:
   db_global_data:
   db_comments_data:
   db_profanity_data:
+  db_subscribers_data:
+  db_featurehub_data:

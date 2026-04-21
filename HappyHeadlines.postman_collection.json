@@ -12,7 +12,10 @@
     { "key": "article_id",     "value": "PASTE-ARTICLE-ID-HERE" },
     { "key": "article_region", "value": "Europe" },
     { "key": "comment_id",     "value": "PASTE-COMMENT-ID-HERE" },
-    { "key": "draft_id",       "value": "PASTE-DRAFT-ID-HERE" }
+    { "key": "draft_id",          "value": "PASTE-DRAFT-ID-HERE" },
+    { "key": "subscriber_url",    "value": "http://localhost:8085" },
+    { "key": "newsletter_url",    "value": "http://localhost:8086" },
+    { "key": "subscriber_email",  "value": "test@example.com" }
   ],
   "item": [
 
@@ -362,6 +365,95 @@
           "request": {
             "method": "DELETE",
             "url": { "raw": "{{draft_url}}/drafts/{{draft_id}}", "host": ["{{draft_url}}"], "path": ["drafts", "{{draft_id}}"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "SubscriberService",
+      "item": [
+        {
+          "name": "POST subscribe",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{subscriber_url}}/subscribers", "host": ["{{subscriber_url}}"], "path": ["subscribers"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{subscriber_email}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET all subscribers",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{subscriber_url}}/subscribers", "host": ["{{subscriber_url}}"], "path": ["subscribers"] }
+          }
+        },
+        {
+          "name": "DELETE unsubscribe",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{subscriber_url}}/subscribers/{{subscriber_email}}", "host": ["{{subscriber_url}}"], "path": ["subscribers", "{{subscriber_email}}"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "NewsletterService",
+      "item": [
+        {
+          "name": "POST send newsletter",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{newsletter_url}}/newsletters/send", "host": ["{{newsletter_url}}"], "path": ["newsletters", "send"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "4 — Release Toggle Demo",
+      "item": [
+        {
+          "name": "Subscribe — flag ON (expect 201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{subscriber_url}}/subscribers", "host": ["{{subscriber_url}}"], "path": ["subscribers"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"toggle-test@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Subscribe — flag OFF (expect 503 Unavailable)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{subscriber_url}}/subscribers", "host": ["{{subscriber_url}}"], "path": ["subscribers"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"toggle-test2@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get subscribers — flag OFF (expect 503 Unavailable)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{subscriber_url}}/subscribers", "host": ["{{subscriber_url}}"], "path": ["subscribers"] }
+          }
+        },
+        {
+          "name": "Send newsletter — SubscriberService down (expect 503)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{newsletter_url}}/newsletters/send", "host": ["{{newsletter_url}}"], "path": ["newsletters", "send"] }
           }
         }
       ]
