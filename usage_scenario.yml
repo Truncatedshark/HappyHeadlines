@@ -1,0 +1,129 @@
+---
+name: HappyHeadlines Cache Energy Measurement
+author: Happy Headlines
+description: |
+  Measures the energy difference between cache MISS (cold) and cache HIT (warm)
+  for the ArticleService. Demonstrates the GAF energy efficiency principle:
+  caching reduces redundant compute and therefore energy consumption.
+architecture: linux
+
+services:
+  db_europe:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: articles
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis_articles:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  articleservice:
+    build:
+      context: ./ArticleService
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      DB_EUROPE: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AFRICA: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ANTARCTICA: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_ASIA: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_AUSTRALIA: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_NORTHAMERICA: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_SOUTHAMERICA: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      DB_GLOBAL: "Host=db_europe;Port=5432;Database=articles;Username=postgres;Password=postgres"
+      RABBITMQ_HOST: "rabbitmq"
+      REDIS_ARTICLES: "redis_articles:6379"
+    depends_on:
+      db_europe:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis_articles:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/articles?region=Europe || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  publisherservice:
+    build:
+      context: ./PublisherService
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      RABBITMQ_HOST: "rabbitmq"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+flow:
+  - name: Seed articles
+    container: publisherservice
+    commands:
+      - type: console
+        command: |
+          curl -s -X POST http://localhost:8080/publish \
+            -H "Content-Type: application/json" \
+            -d '{"title":"Test Article 1","content":"Content here","author":"Reporter","region":"Europe"}'
+        note: Publish article 1
+      - type: console
+        command: sleep 3
+        note: Wait for queue consumer to persist article
+      - type: console
+        command: |
+          curl -s -X POST http://localhost:8080/publish \
+            -H "Content-Type: application/json" \
+            -d '{"title":"Test Article 2","content":"More content","author":"Reporter","region":"Europe"}'
+        note: Publish article 2
+      - type: console
+        command: sleep 3
+        note: Wait for queue consumer
+
+  - name: Cold cache (cache MISS - hits PostgreSQL)
+    container: redis_articles
+    commands:
+      - type: console
+        command: redis-cli FLUSHALL
+        note: Clear cache to ensure cold start
+
+  - name: Cold cache requests
+    container: articleservice
+    commands:
+      - type: console
+        command: |
+          for i in $(seq 1 20); do
+            curl -s "http://localhost:8080/articles?region=Europe" > /dev/null
+          done
+        note: 20 requests against cold cache - all hit PostgreSQL
+        log-stdout: true
+
+  - name: Warm cache (cache HIT - served from Redis)
+    container: articleservice
+    commands:
+      - type: console
+        command: |
+          for i in $(seq 1 20); do
+            curl -s "http://localhost:8080/articles?region=Europe" > /dev/null
+          done
+        note: 20 requests against warm cache - all served from Redis
+        log-stdout: true
