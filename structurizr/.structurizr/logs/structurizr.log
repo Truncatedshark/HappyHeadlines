@@ -1,0 +1,271 @@
+2026-06-09T18:20:49.041Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:20:49.045Z  INFO 1 --- [main] com.structurizr.server.Local             :   _____ _                   _              _          
+2026-06-09T18:20:49.046Z  INFO 1 --- [main] com.structurizr.server.Local             :  / ____| |                 | |            (_)         
+2026-06-09T18:20:49.047Z  INFO 1 --- [main] com.structurizr.server.Local             : | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ _ _____ __ 
+2026-06-09T18:20:49.047Z  INFO 1 --- [main] com.structurizr.server.Local             :  \___ \| __| '__| | | |/ __| __| | | | '__| |_  / '__|
+2026-06-09T18:20:49.048Z  INFO 1 --- [main] com.structurizr.server.Local             :  ____) | |_| |  | |_| | (__| |_| |_| | |  | |/ /| |   
+2026-06-09T18:20:49.048Z  INFO 1 --- [main] com.structurizr.server.Local             : |_____/ \__|_|   \__,_|\___|\__|\__,_|_|  |_/___|_|   
+2026-06-09T18:20:49.048Z  INFO 1 --- [main] com.structurizr.server.Local             :                                                       
+2026-06-09T18:20:49.049Z  INFO 1 --- [main] com.structurizr.server.Local             : Local v2026.05.22
+2026-06-09T18:20:49.050Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:20:49.051Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.authentication: none
+2026-06-09T18:20:49.051Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autorefreshinterval: 0
+2026-06-09T18:20:49.052Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autosaveinterval: 5000
+2026-06-09T18:20:49.052Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.cache: none
+2026-06-09T18:20:49.052Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.data: file
+2026-06-09T18:20:49.053Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.datadirectory: /usr/local/structurizr
+2026-06-09T18:20:49.053Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.debug: false
+2026-06-09T18:20:49.053Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.editable: true
+2026-06-09T18:20:49.054Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.logging.filename: /usr/local/structurizr/.structurizr/logs/structurizr.log
+2026-06-09T18:20:49.054Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.timeout: 60000
+2026-06-09T18:20:49.055Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.urls.allowed: .*
+2026-06-09T18:20:49.055Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.search: lucene
+2026-06-09T18:20:49.055Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.themes: /usr/local/structurizr/themes/
+2026-06-09T18:20:49.056Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.maxsize: 1MB
+2026-06-09T18:20:49.056Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.threads: 10
+2026-06-09T18:20:49.056Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspaces: 1
+2026-06-09T18:20:49.057Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:20:49.057Z  INFO 1 --- [main] com.structurizr.server.Local             : Themes:
+2026-06-09T18:20:49.058Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:20:56.306Z  WARN 1 --- [pool-4-thread-1] c.s.server.web.search.SearchIndexer      : Error indexing workspace with ID 1
+
+com.structurizr.server.component.workspace.WorkspaceComponentException: com.structurizr.dsl.StructurizrDslParserException: Components can't be added to a dynamic view when the scope is a software system at line 252 of /usr/local/structurizr/workspace.dsl: publisher -> publisherEndpoints "1. POST /publish {title,content,author,region}"
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.loadWorkspace(LocalFileSystemWorkspaceAdapter.java:70) ~[!/:2026.05.22]
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.getWorkspace(LocalFileSystemWorkspaceAdapter.java:151) ~[!/:2026.05.22]
+	at com.structurizr.server.component.workspace.WorkspaceComponentImpl.getWorkspace(WorkspaceComponentImpl.java:206) ~[!/:2026.05.22]
+	at com.structurizr.server.web.search.SearchIndexer.lambda$rebuildSearchIndex$0(SearchIndexer.java:52) ~[!/:2026.05.22]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) ~[na:na]
+	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+Caused by: com.structurizr.dsl.StructurizrDslParserException: Components can't be added to a dynamic view when the scope is a software system at line 252 of /usr/local/structurizr/workspace.dsl: publisher -> publisherEndpoints "1. POST /publish {title,content,author,region}"
+	at com.structurizr.dsl.StructurizrDslParser.parse(StructurizrDslParser.java:1369) ~[structurizr-dsl-6.2.1.jar!/:6.2.1]
+	at com.structurizr.dsl.StructurizrDslParser.parse(StructurizrDslParser.java:188) ~[structurizr-dsl-6.2.1.jar!/:6.2.1]
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.loadWorkspaceFromDsl(LocalFileSystemWorkspaceAdapter.java:113) ~[!/:2026.05.22]
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.loadWorkspace(LocalFileSystemWorkspaceAdapter.java:68) ~[!/:2026.05.22]
+	... 8 common frames omitted
+
+2026-06-09T18:21:11.147Z ERROR 1 --- [http-nio-8080-exec-1] c.s.s.w.a.AbstractWorkspaceApiController : com.structurizr.server.component.workspace.WorkspaceComponentException: com.structurizr.dsl.StructurizrDslParserException: Components can't be added to a dynamic view when the scope is a software system at line 252 of /usr/local/structurizr/workspace.dsl: publisher -> publisherEndpoints "1. POST /publish {title,content,author,region}"
+2026-06-09T18:23:08.045Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T18:23:08.045Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    :  Stopping Structurizr
+2026-06-09T18:23:08.045Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T18:23:15.573Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:23:15.575Z  INFO 1 --- [main] com.structurizr.server.Local             :   _____ _                   _              _          
+2026-06-09T18:23:15.575Z  INFO 1 --- [main] com.structurizr.server.Local             :  / ____| |                 | |            (_)         
+2026-06-09T18:23:15.575Z  INFO 1 --- [main] com.structurizr.server.Local             : | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ _ _____ __ 
+2026-06-09T18:23:15.576Z  INFO 1 --- [main] com.structurizr.server.Local             :  \___ \| __| '__| | | |/ __| __| | | | '__| |_  / '__|
+2026-06-09T18:23:15.576Z  INFO 1 --- [main] com.structurizr.server.Local             :  ____) | |_| |  | |_| | (__| |_| |_| | |  | |/ /| |   
+2026-06-09T18:23:15.576Z  INFO 1 --- [main] com.structurizr.server.Local             : |_____/ \__|_|   \__,_|\___|\__|\__,_|_|  |_/___|_|   
+2026-06-09T18:23:15.577Z  INFO 1 --- [main] com.structurizr.server.Local             :                                                       
+2026-06-09T18:23:15.578Z  INFO 1 --- [main] com.structurizr.server.Local             : Local v2026.05.22
+2026-06-09T18:23:15.578Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:23:15.580Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.authentication: none
+2026-06-09T18:23:15.580Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autorefreshinterval: 0
+2026-06-09T18:23:15.581Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autosaveinterval: 5000
+2026-06-09T18:23:15.581Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.cache: none
+2026-06-09T18:23:15.582Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.data: file
+2026-06-09T18:23:15.582Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.datadirectory: /usr/local/structurizr
+2026-06-09T18:23:15.582Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.debug: false
+2026-06-09T18:23:15.583Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.editable: true
+2026-06-09T18:23:15.583Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.logging.filename: /usr/local/structurizr/.structurizr/logs/structurizr.log
+2026-06-09T18:23:15.584Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.timeout: 60000
+2026-06-09T18:23:15.584Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.urls.allowed: .*
+2026-06-09T18:23:15.584Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.search: lucene
+2026-06-09T18:23:15.585Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.themes: /usr/local/structurizr/themes/
+2026-06-09T18:23:15.585Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.maxsize: 1MB
+2026-06-09T18:23:15.586Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.threads: 10
+2026-06-09T18:23:15.586Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspaces: 1
+2026-06-09T18:23:15.586Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:23:15.587Z  INFO 1 --- [main] com.structurizr.server.Local             : Themes:
+2026-06-09T18:23:15.587Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T18:23:23.002Z  WARN 1 --- [pool-4-thread-1] c.s.server.web.search.SearchIndexer      : Error indexing workspace with ID 1
+
+com.structurizr.server.component.workspace.WorkspaceComponentException: com.structurizr.dsl.StructurizrDslParserException: A relationship between Publisher and PublisherEndpoints does not exist in model at line 252 of /usr/local/structurizr/workspace.dsl: publisher -> publisherEndpoints "1. POST /publish {title,content,author,region}"
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.loadWorkspace(LocalFileSystemWorkspaceAdapter.java:70) ~[!/:2026.05.22]
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.getWorkspace(LocalFileSystemWorkspaceAdapter.java:151) ~[!/:2026.05.22]
+	at com.structurizr.server.component.workspace.WorkspaceComponentImpl.getWorkspace(WorkspaceComponentImpl.java:206) ~[!/:2026.05.22]
+	at com.structurizr.server.web.search.SearchIndexer.lambda$rebuildSearchIndex$0(SearchIndexer.java:52) ~[!/:2026.05.22]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) ~[na:na]
+	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+Caused by: com.structurizr.dsl.StructurizrDslParserException: A relationship between Publisher and PublisherEndpoints does not exist in model at line 252 of /usr/local/structurizr/workspace.dsl: publisher -> publisherEndpoints "1. POST /publish {title,content,author,region}"
+	at com.structurizr.dsl.StructurizrDslParser.parse(StructurizrDslParser.java:1369) ~[structurizr-dsl-6.2.1.jar!/:6.2.1]
+	at com.structurizr.dsl.StructurizrDslParser.parse(StructurizrDslParser.java:188) ~[structurizr-dsl-6.2.1.jar!/:6.2.1]
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.loadWorkspaceFromDsl(LocalFileSystemWorkspaceAdapter.java:113) ~[!/:2026.05.22]
+	at com.structurizr.server.component.workspace.LocalFileSystemWorkspaceAdapter.loadWorkspace(LocalFileSystemWorkspaceAdapter.java:68) ~[!/:2026.05.22]
+	... 8 common frames omitted
+
+2026-06-09T18:23:31.982Z ERROR 1 --- [http-nio-8080-exec-7] c.s.s.w.a.AbstractWorkspaceApiController : com.structurizr.server.component.workspace.WorkspaceComponentException: com.structurizr.dsl.StructurizrDslParserException: A relationship between Publisher and PublisherEndpoints does not exist in model at line 252 of /usr/local/structurizr/workspace.dsl: publisher -> publisherEndpoints "1. POST /publish {title,content,author,region}"
+2026-06-09T18:25:29.365Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.633Z  WARN 1 --- [http-nio-8080-exec-7] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.633Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.633Z  WARN 1 --- [http-nio-8080-exec-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.633Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.633Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.633Z  WARN 1 --- [http-nio-8080-exec-5] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.700Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.701Z  WARN 1 --- [http-nio-8080-exec-2] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.701Z  WARN 1 --- [http-nio-8080-exec-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.702Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.702Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.702Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.752Z  WARN 1 --- [http-nio-8080-exec-2] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.752Z  WARN 1 --- [http-nio-8080-exec-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.753Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.754Z  WARN 1 --- [http-nio-8080-exec-7] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.754Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.754Z  WARN 1 --- [http-nio-8080-exec-5] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.790Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:29.791Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:35.139Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:35.160Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.002Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.003Z  WARN 1 --- [http-nio-8080-exec-7] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.002Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.002Z  WARN 1 --- [http-nio-8080-exec-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.002Z  WARN 1 --- [http-nio-8080-exec-2] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.003Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.044Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.045Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.044Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.045Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.045Z  WARN 1 --- [http-nio-8080-exec-5] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.045Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.075Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.076Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.076Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.079Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.110Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.110Z  WARN 1 --- [http-nio-8080-exec-5] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.110Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.111Z  WARN 1 --- [http-nio-8080-exec-7] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.119Z  WARN 1 --- [http-nio-8080-exec-2] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.121Z  WARN 1 --- [http-nio-8080-exec-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.140Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.140Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.140Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.140Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.167Z  WARN 1 --- [http-nio-8080-exec-7] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.167Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.168Z  WARN 1 --- [http-nio-8080-exec-5] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.168Z  WARN 1 --- [http-nio-8080-exec-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.168Z  WARN 1 --- [http-nio-8080-exec-2] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.168Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.192Z  WARN 1 --- [http-nio-8080-exec-6] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:39.192Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:41.706Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:25:44.255Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:26:20.762Z  WARN 1 --- [http-nio-8080-exec-5] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:50:09.664Z  WARN 1 --- [http-nio-8080-exec-9] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:50:56.683Z  WARN 1 --- [http-nio-8080-exec-4] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:51:27.645Z  WARN 1 --- [http-nio-8080-exec-10] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:53:00.527Z  WARN 1 --- [http-nio-8080-exec-3] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T18:53:06.129Z  WARN 1 --- [http-nio-8080-exec-8] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:07:55.536Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:07:55.546Z  INFO 1 --- [main] com.structurizr.server.Local             :   _____ _                   _              _          
+2026-06-09T22:07:55.546Z  INFO 1 --- [main] com.structurizr.server.Local             :  / ____| |                 | |            (_)         
+2026-06-09T22:07:55.546Z  INFO 1 --- [main] com.structurizr.server.Local             : | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ _ _____ __ 
+2026-06-09T22:07:55.546Z  INFO 1 --- [main] com.structurizr.server.Local             :  \___ \| __| '__| | | |/ __| __| | | | '__| |_  / '__|
+2026-06-09T22:07:55.547Z  INFO 1 --- [main] com.structurizr.server.Local             :  ____) | |_| |  | |_| | (__| |_| |_| | |  | |/ /| |   
+2026-06-09T22:07:55.547Z  INFO 1 --- [main] com.structurizr.server.Local             : |_____/ \__|_|   \__,_|\___|\__|\__,_|_|  |_/___|_|   
+2026-06-09T22:07:55.547Z  INFO 1 --- [main] com.structurizr.server.Local             :                                                       
+2026-06-09T22:07:55.550Z  INFO 1 --- [main] com.structurizr.server.Local             : Local v2026.05.22
+2026-06-09T22:07:55.551Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:07:55.551Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.authentication: none
+2026-06-09T22:07:55.552Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autorefreshinterval: 0
+2026-06-09T22:07:55.552Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autosaveinterval: 5000
+2026-06-09T22:07:55.553Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.cache: none
+2026-06-09T22:07:55.553Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.data: file
+2026-06-09T22:07:55.554Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.datadirectory: /usr/local/structurizr
+2026-06-09T22:07:55.554Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.debug: false
+2026-06-09T22:07:55.555Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.editable: true
+2026-06-09T22:07:55.555Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.logging.filename: /usr/local/structurizr/.structurizr/logs/structurizr.log
+2026-06-09T22:07:55.555Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.timeout: 60000
+2026-06-09T22:07:55.556Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.urls.allowed: .*
+2026-06-09T22:07:55.556Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.search: lucene
+2026-06-09T22:07:55.556Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.themes: /usr/local/structurizr/themes/
+2026-06-09T22:07:55.557Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.maxsize: 1MB
+2026-06-09T22:07:55.557Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.threads: 10
+2026-06-09T22:07:55.557Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspaces: 1
+2026-06-09T22:07:55.558Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:07:55.558Z  INFO 1 --- [main] com.structurizr.server.Local             : Themes:
+2026-06-09T22:07:55.559Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:08:03.059Z  WARN 1 --- [pool-3-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:08:03.107Z  WARN 1 --- [pool-4-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:08:03.215Z  WARN 1 --- [pool-4-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:13:51.166Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T22:13:51.166Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    :  Stopping Structurizr
+2026-06-09T22:13:51.167Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T22:14:14.681Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:14:14.684Z  INFO 1 --- [main] com.structurizr.server.Local             :   _____ _                   _              _          
+2026-06-09T22:14:14.684Z  INFO 1 --- [main] com.structurizr.server.Local             :  / ____| |                 | |            (_)         
+2026-06-09T22:14:14.684Z  INFO 1 --- [main] com.structurizr.server.Local             : | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ _ _____ __ 
+2026-06-09T22:14:14.685Z  INFO 1 --- [main] com.structurizr.server.Local             :  \___ \| __| '__| | | |/ __| __| | | | '__| |_  / '__|
+2026-06-09T22:14:14.685Z  INFO 1 --- [main] com.structurizr.server.Local             :  ____) | |_| |  | |_| | (__| |_| |_| | |  | |/ /| |   
+2026-06-09T22:14:14.686Z  INFO 1 --- [main] com.structurizr.server.Local             : |_____/ \__|_|   \__,_|\___|\__|\__,_|_|  |_/___|_|   
+2026-06-09T22:14:14.686Z  INFO 1 --- [main] com.structurizr.server.Local             :                                                       
+2026-06-09T22:14:14.687Z  INFO 1 --- [main] com.structurizr.server.Local             : Local v2026.05.22
+2026-06-09T22:14:14.688Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:14:14.689Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.authentication: none
+2026-06-09T22:14:14.690Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autorefreshinterval: 0
+2026-06-09T22:14:14.691Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autosaveinterval: 5000
+2026-06-09T22:14:14.691Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.cache: none
+2026-06-09T22:14:14.691Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.data: file
+2026-06-09T22:14:14.692Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.datadirectory: /usr/local/structurizr
+2026-06-09T22:14:14.692Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.debug: false
+2026-06-09T22:14:14.693Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.editable: true
+2026-06-09T22:14:14.693Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.logging.filename: /usr/local/structurizr/.structurizr/logs/structurizr.log
+2026-06-09T22:14:14.694Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.timeout: 60000
+2026-06-09T22:14:14.694Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.urls.allowed: .*
+2026-06-09T22:14:14.694Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.search: lucene
+2026-06-09T22:14:14.695Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.themes: /usr/local/structurizr/themes/
+2026-06-09T22:14:14.695Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.maxsize: 1MB
+2026-06-09T22:14:14.696Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.threads: 10
+2026-06-09T22:14:14.696Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspaces: 1
+2026-06-09T22:14:14.696Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:14:14.697Z  INFO 1 --- [main] com.structurizr.server.Local             : Themes:
+2026-06-09T22:14:14.697Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:14:22.056Z  WARN 1 --- [pool-3-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:14:22.109Z  WARN 1 --- [pool-4-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:14:22.216Z  WARN 1 --- [pool-4-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:22:13.047Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T22:22:13.048Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    :  Stopping Structurizr
+2026-06-09T22:22:13.049Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T22:22:26.547Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:22:26.550Z  INFO 1 --- [main] com.structurizr.server.Local             :   _____ _                   _              _          
+2026-06-09T22:22:26.550Z  INFO 1 --- [main] com.structurizr.server.Local             :  / ____| |                 | |            (_)         
+2026-06-09T22:22:26.551Z  INFO 1 --- [main] com.structurizr.server.Local             : | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ _ _____ __ 
+2026-06-09T22:22:26.551Z  INFO 1 --- [main] com.structurizr.server.Local             :  \___ \| __| '__| | | |/ __| __| | | | '__| |_  / '__|
+2026-06-09T22:22:26.551Z  INFO 1 --- [main] com.structurizr.server.Local             :  ____) | |_| |  | |_| | (__| |_| |_| | |  | |/ /| |   
+2026-06-09T22:22:26.552Z  INFO 1 --- [main] com.structurizr.server.Local             : |_____/ \__|_|   \__,_|\___|\__|\__,_|_|  |_/___|_|   
+2026-06-09T22:22:26.552Z  INFO 1 --- [main] com.structurizr.server.Local             :                                                       
+2026-06-09T22:22:26.553Z  INFO 1 --- [main] com.structurizr.server.Local             : Local v2026.05.22
+2026-06-09T22:22:26.553Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:22:26.554Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.authentication: none
+2026-06-09T22:22:26.555Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autorefreshinterval: 0
+2026-06-09T22:22:26.555Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.autosaveinterval: 5000
+2026-06-09T22:22:26.555Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.cache: none
+2026-06-09T22:22:26.556Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.data: file
+2026-06-09T22:22:26.556Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.datadirectory: /usr/local/structurizr
+2026-06-09T22:22:26.556Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.debug: false
+2026-06-09T22:22:26.557Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.editable: true
+2026-06-09T22:22:26.557Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.logging.filename: /usr/local/structurizr/.structurizr/logs/structurizr.log
+2026-06-09T22:22:26.564Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.timeout: 60000
+2026-06-09T22:22:26.565Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.network.urls.allowed: .*
+2026-06-09T22:22:26.565Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.search: lucene
+2026-06-09T22:22:26.566Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.themes: /usr/local/structurizr/themes/
+2026-06-09T22:22:26.566Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.maxsize: 1MB
+2026-06-09T22:22:26.566Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspace.threads: 10
+2026-06-09T22:22:26.567Z  INFO 1 --- [main] com.structurizr.server.Local             :  - structurizr.workspaces: 1
+2026-06-09T22:22:26.567Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:22:26.567Z  INFO 1 --- [main] com.structurizr.server.Local             : Themes:
+2026-06-09T22:22:26.568Z  INFO 1 --- [main] com.structurizr.server.Local             : ***********************************************************************************
+2026-06-09T22:22:33.620Z  WARN 1 --- [pool-3-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:22:33.669Z  WARN 1 --- [pool-4-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:22:33.773Z  WARN 1 --- [pool-4-thread-1] com.structurizr.view.Configuration       : The Structurizr cloud service will reach its End of Life (EOL) on 30 September 2026 and this theme will not be available: https://static.structurizr.com/themes/default/theme.json
+2026-06-09T22:23:03.946Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************
+2026-06-09T22:23:03.946Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    :  Stopping Structurizr
+2026-06-09T22:23:03.946Z  INFO 1 --- [SpringApplicationShutdownHook] com.structurizr.server.AbstractServer    : ********************************************************

@@ -1,5 +1,14 @@
 services:
 
+  # ── Architecture Docs ─────────────────────────────────────────────────────
+  structurizr:
+    image: structurizr/structurizr
+    command: local
+    ports:
+      - "8888:8080"   # UI at http://localhost:8888
+    volumes:
+      - ./structurizr:/usr/local/structurizr
+
   # ── Observability ─────────────────────────────────────────────────────────
   seq:
     image: datalust/seq:latest
@@ -387,7 +396,7 @@ services:
       SEQ_URL:                "http://seq"
       JAEGER_OTLP_ENDPOINT:   "http://jaeger:4317"
       FEATUREHUB_EDGE_URL:    "http://featurehub:8085/"
-      FEATUREHUB_API_KEY:     "4a4f1e25-55d4-49d8-b6be-b700e2646645/P5yxP5d6TQbuTtvGLlYD79IGiIpcKb0GbahBaDuo"
+      FEATUREHUB_API_KEY:     "6d8f2248-0ccf-4c07-8263-aedf02000e23/T8x6JrHxhNYiCv60ZevCw5qifqtK6ep9HCzGSaIe"
     depends_on:
       db_subscribers:
         condition: service_healthy

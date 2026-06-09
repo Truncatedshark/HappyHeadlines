@@ -1,0 +1,1903 @@
+{
+  "configuration" : { },
+  "description" : "Positive news microservices platform",
+  "documentation" : { },
+  "id" : 1,
+  "lastModifiedDate" : "2026-06-09T18:25:29Z",
+  "model" : {
+    "people" : [ {
+      "description" : "Reads articles and submits comments.",
+      "id" : "1",
+      "name" : "Reader",
+      "properties" : {
+        "structurizr.dsl.identifier" : "user"
+      },
+      "relationships" : [ {
+        "description" : "GET /articles, GET /comments",
+        "destinationId" : "4",
+        "id" : "48",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "GET /articles, GET /comments",
+        "destinationId" : "3",
+        "id" : "49",
+        "linkedRelationshipId" : "48",
+        "sourceId" : "1"
+      }, {
+        "description" : "POST /comments",
+        "destinationId" : "25",
+        "id" : "106",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "POST /comments",
+        "destinationId" : "24",
+        "id" : "107",
+        "linkedRelationshipId" : "106",
+        "sourceId" : "1"
+      }, {
+        "description" : "POST /subscribers",
+        "destinationId" : "44",
+        "id" : "108",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "POST /subscribers",
+        "destinationId" : "43",
+        "id" : "109",
+        "linkedRelationshipId" : "108",
+        "sourceId" : "1"
+      } ],
+      "tags" : "Element,Person"
+    }, {
+      "description" : "Publishes articles via the API.",
+      "id" : "2",
+      "name" : "Publisher",
+      "properties" : {
+        "structurizr.dsl.identifier" : "publisher"
+      },
+      "relationships" : [ {
+        "description" : "POST /publish",
+        "destinationId" : "40",
+        "id" : "50",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "POST /publish",
+        "destinationId" : "3",
+        "id" : "51",
+        "linkedRelationshipId" : "50",
+        "sourceId" : "2"
+      }, {
+        "description" : "POST /publish",
+        "destinationId" : "41",
+        "id" : "102",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Round-robin load balancer across 3 ArticleService replicas",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "nginx",
+        "properties" : {
+          "structurizr.dsl.identifier" : "nginx"
+        },
+        "relationships" : [ {
+          "description" : "Round-robin HTTP",
+          "destinationId" : "18",
+          "id" : "52",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Routes HTTP request",
+          "destinationId" : "19",
+          "id" : "103",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,Infrastructure",
+        "technology" : "nginx"
+      }, {
+        "description" : "Async message broker. Queues: articles, subscribers",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "RabbitMQ",
+        "properties" : {
+          "structurizr.dsl.identifier" : "rabbitMQ"
+        },
+        "relationships" : [ {
+          "description" : "Delivers ArticleMessage",
+          "destinationId" : "22",
+          "id" : "104",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Delivers ArticleMessage",
+          "destinationId" : "18",
+          "id" : "105",
+          "linkedRelationshipId" : "104",
+          "sourceId" : "5"
+        }, {
+          "description" : "Delivers SubscriberMessage",
+          "destinationId" : "36",
+          "id" : "110",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Delivers SubscriberMessage",
+          "destinationId" : "33",
+          "id" : "111",
+          "linkedRelationshipId" : "110",
+          "sourceId" : "5"
+        } ],
+        "tags" : "Element,Container,Messaging",
+        "technology" : "RabbitMQ 3"
+      }, {
+        "description" : "Article cache. TTL 15 min default. Warmed every 5 min.",
+        "documentation" : { },
+        "id" : "6",
+        "name" : "redis_articles",
+        "properties" : {
+          "structurizr.dsl.identifier" : "redisArticles"
+        },
+        "tags" : "Element,Container,Cache",
+        "technology" : "Redis 7"
+      }, {
+        "description" : "Comment cache. TTL 15 min. LRU-30 eviction via sorted set.",
+        "documentation" : { },
+        "id" : "7",
+        "name" : "redis_comments",
+        "properties" : {
+          "structurizr.dsl.identifier" : "redisComments"
+        },
+        "tags" : "Element,Container,Cache",
+        "technology" : "Redis 7"
+      }, {
+        "description" : "8 regional PostgreSQL shards: Africa, Antarctica, Asia, Australia, Europe, NorthAmerica, SouthAmerica, Global",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Article Databases",
+        "properties" : {
+          "structurizr.dsl.identifier" : "dbArticles"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL 16"
+      }, {
+        "description" : "Stores Comment rows (Pending / Approved / Rejected)",
+        "documentation" : { },
+        "id" : "9",
+        "name" : "db_comments",
+        "properties" : {
+          "structurizr.dsl.identifier" : "dbComments"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL 16"
+      }, {
+        "description" : "Stores Draft rows",
+        "documentation" : { },
+        "id" : "10",
+        "name" : "db_drafts",
+        "properties" : {
+          "structurizr.dsl.identifier" : "dbDrafts"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL 16"
+      }, {
+        "description" : "Stores ProfanityWord rows",
+        "documentation" : { },
+        "id" : "11",
+        "name" : "db_profanity",
+        "properties" : {
+          "structurizr.dsl.identifier" : "dbProfanity"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL 16"
+      }, {
+        "description" : "Stores Subscriber rows (unique Email index)",
+        "documentation" : { },
+        "id" : "12",
+        "name" : "db_subscribers",
+        "properties" : {
+          "structurizr.dsl.identifier" : "dbSubscribers"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL 16"
+      }, {
+        "description" : "Feature flag server. Flag: subscriber_service_enabled",
+        "documentation" : { },
+        "id" : "13",
+        "name" : "FeatureHub",
+        "properties" : {
+          "structurizr.dsl.identifier" : "featureHub"
+        },
+        "tags" : "Element,Container",
+        "technology" : "FeatureHub"
+      }, {
+        "description" : "Scrapes /metrics from services",
+        "documentation" : { },
+        "id" : "14",
+        "name" : "Prometheus",
+        "properties" : {
+          "structurizr.dsl.identifier" : "prometheus"
+        },
+        "relationships" : [ {
+          "description" : "Scrape /metrics",
+          "destinationId" : "18",
+          "id" : "67",
+          "sourceId" : "14",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Scrape /metrics",
+          "destinationId" : "24",
+          "id" : "68",
+          "sourceId" : "14",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Scrape /metrics",
+          "destinationId" : "43",
+          "id" : "69",
+          "sourceId" : "14",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,Monitoring",
+        "technology" : "Prometheus"
+      }, {
+        "description" : "Cache hit-ratio dashboards (port 3000)",
+        "documentation" : { },
+        "id" : "15",
+        "name" : "Grafana",
+        "properties" : {
+          "structurizr.dsl.identifier" : "grafana"
+        },
+        "relationships" : [ {
+          "description" : "PromQL queries",
+          "destinationId" : "14",
+          "id" : "70",
+          "sourceId" : "15",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,Monitoring",
+        "technology" : "Grafana"
+      }, {
+        "description" : "Structured log aggregation (port 5341)",
+        "documentation" : { },
+        "id" : "16",
+        "name" : "Seq",
+        "properties" : {
+          "structurizr.dsl.identifier" : "seq"
+        },
+        "tags" : "Element,Container,Monitoring",
+        "technology" : "Seq"
+      }, {
+        "description" : "Distributed tracing (port 16686)",
+        "documentation" : { },
+        "id" : "17",
+        "name" : "Jaeger",
+        "properties" : {
+          "structurizr.dsl.identifier" : "jaeger"
+        },
+        "tags" : "Element,Container,Monitoring",
+        "technology" : "Jaeger"
+      }, {
+        "components" : [ {
+          "description" : "Static class. Registers Minimal API routes: POST /articles, GET /articles?region, GET /articles/{id}?region, PUT /articles/{id}?region, DELETE /articles/{id}?region. Uses records CreateArticleRequest and UpdateArticleRequest.",
+          "documentation" : { },
+          "id" : "19",
+          "name" : "ArticleEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "articleEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "CreateForRegion(region)",
+            "destinationId" : "20",
+            "id" : "74",
+            "sourceId" : "19",
+            "tags" : "Relationship"
+          }, {
+            "description" : "GetArticlesAsync / SetArticlesAsync / GetArticleAsync",
+            "destinationId" : "21",
+            "id" : "75",
+            "sourceId" : "19",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "Reads 8 regional connection strings from IConfiguration. CreateForRegion(Region) returns a scoped ArticleDbContext pointed at the correct PostgreSQL shard.",
+          "documentation" : { },
+          "id" : "20",
+          "name" : "ArticleDbContextFactory",
+          "properties" : {
+            "structurizr.dsl.identifier" : "articleDbContextFactory"
+          },
+          "relationships" : [ {
+            "description" : "DbContextOptionsBuilder per region",
+            "destinationId" : "8",
+            "id" : "72",
+            "sourceId" : "20",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / EF Core"
+        }, {
+          "description" : "IConfiguration + ConnectionMultiplexer injected via constructor. List key: articles:{region}. Item key: article:{id}:{region}. Methods: GetArticlesAsync, SetArticlesAsync, GetArticleAsync, SetArticleAsync.",
+          "documentation" : { },
+          "id" : "21",
+          "name" : "ArticleCache",
+          "properties" : {
+            "structurizr.dsl.identifier" : "articleCache"
+          },
+          "relationships" : [ {
+            "description" : "IDatabase.StringGetAsync / StringSetAsync",
+            "destinationId" : "6",
+            "id" : "71",
+            "sourceId" : "21",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / StackExchange.Redis"
+        }, {
+          "description" : "BackgroundService. Connects to RabbitMQ on startup; declares articles queue. Deserialises ArticleMessage; extracts W3C traceparent for Jaeger. Calls ArticleDbContextFactory.CreateForRegion to persist; calls ArticleCache to invalidate.",
+          "documentation" : { },
+          "id" : "22",
+          "name" : "ArticleQueueConsumer",
+          "properties" : {
+            "structurizr.dsl.identifier" : "articleQueueConsumer"
+          },
+          "relationships" : [ {
+            "description" : "IModel.BasicConsume on articles queue",
+            "destinationId" : "5",
+            "id" : "73",
+            "sourceId" : "22",
+            "tags" : "Relationship"
+          }, {
+            "description" : "CreateForRegion(msg.Region)",
+            "destinationId" : "20",
+            "id" : "76",
+            "sourceId" : "22",
+            "tags" : "Relationship"
+          }, {
+            "description" : "SetArticleAsync (invalidate list)",
+            "destinationId" : "21",
+            "id" : "77",
+            "sourceId" : "22",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / RabbitMQ.Client / OpenTelemetry"
+        }, {
+          "description" : "BackgroundService. On startup and every 5 min calls WarmAllRegionsAsync: iterates all Region values, queries ArticleDbContextFactory, writes to ArticleCache with 10-min TTL.",
+          "documentation" : { },
+          "id" : "23",
+          "name" : "ArticleCacheWarmer",
+          "properties" : {
+            "structurizr.dsl.identifier" : "articleCacheWarmer"
+          },
+          "relationships" : [ {
+            "description" : "CreateForRegion per Region value",
+            "destinationId" : "20",
+            "id" : "78",
+            "sourceId" : "23",
+            "tags" : "Relationship"
+          }, {
+            "description" : "SetArticlesAsync(region, list, ttl:10min)",
+            "destinationId" : "21",
+            "id" : "79",
+            "sourceId" : "23",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / IHostedService"
+        } ],
+        "description" : "Consumes new articles from queue; serves reads with cache-aside. 3 replicas behind nginx.",
+        "documentation" : { },
+        "id" : "18",
+        "name" : "ArticleService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "articleService"
+        },
+        "relationships" : [ {
+          "description" : "Cache-aside (StackExchange.Redis)",
+          "destinationId" : "6",
+          "id" : "53",
+          "sourceId" : "18",
+          "tags" : "Relationship"
+        }, {
+          "description" : "EF Core (8 regional shards)",
+          "destinationId" : "8",
+          "id" : "54",
+          "sourceId" : "18",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Consume articles queue",
+          "destinationId" : "5",
+          "id" : "55",
+          "sourceId" : "18",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      }, {
+        "components" : [ {
+          "description" : "Static class. Routes: POST /comments (record CreateCommentRequest), GET /comments?articleId, DELETE /comments/{id}. Returns 202 Accepted when circuit breaker is open (comment saved as Pending).",
+          "documentation" : { },
+          "id" : "25",
+          "name" : "CommentEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "commentEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "Add / SaveChangesAsync",
+            "destinationId" : "26",
+            "id" : "83",
+            "sourceId" : "25",
+            "tags" : "Relationship"
+          }, {
+            "description" : "GetCommentsAsync / InvalidateAsync",
+            "destinationId" : "27",
+            "id" : "84",
+            "sourceId" : "25",
+            "tags" : "Relationship"
+          }, {
+            "description" : "CheckTextAsync(content)",
+            "destinationId" : "28",
+            "id" : "85",
+            "sourceId" : "25",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "DbContext with DbSet<Comment>. Comment has: Id (Guid), ArticleId (Guid), Author, Content, Status (CommentStatus enum: Pending/Approved/Rejected), CreatedAt.",
+          "documentation" : { },
+          "id" : "26",
+          "name" : "CommentDbContext",
+          "properties" : {
+            "structurizr.dsl.identifier" : "commentDbContext"
+          },
+          "relationships" : [ {
+            "description" : "EF Core queries",
+            "destinationId" : "9",
+            "id" : "80",
+            "sourceId" : "26",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / EF Core"
+        }, {
+          "description" : "Per-articleId cache. Key: comments:{articleId}. LRU tracking via sorted set comments:lru scored by Unix timestamp; evicts oldest entry when count exceeds 30. Methods: GetCommentsAsync, SetCommentsAsync, InvalidateAsync.",
+          "documentation" : { },
+          "id" : "27",
+          "name" : "CommentCache",
+          "properties" : {
+            "structurizr.dsl.identifier" : "commentCache"
+          },
+          "relationships" : [ {
+            "description" : "IDatabase operations + sorted set for LRU",
+            "destinationId" : "7",
+            "id" : "81",
+            "sourceId" : "27",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / StackExchange.Redis"
+        }, {
+          "description" : "Typed HttpClient. CheckTextAsync(string text) POSTs to /check and returns CheckResult {bool ContainsProfanity, List<string> MatchedWords}. Polly circuit breaker: 50% failure ratio, min 3 calls, 30s sampling window, 15s break duration.",
+          "documentation" : { },
+          "id" : "28",
+          "name" : "ProfanityServiceClient",
+          "properties" : {
+            "structurizr.dsl.identifier" : "profanityClient"
+          },
+          "relationships" : [ {
+            "description" : "POST /check (circuit-breaker)",
+            "destinationId" : "37",
+            "id" : "82",
+            "sourceId" : "28",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Polly / HttpClient"
+        }, {
+          "description" : "BackgroundService. Every 30 s queries CommentDbContext for Status==Pending comments. Calls ProfanityServiceClient.CheckTextAsync; sets status to Approved or Rejected; saves changes.",
+          "documentation" : { },
+          "id" : "29",
+          "name" : "PendingCommentProcessor",
+          "properties" : {
+            "structurizr.dsl.identifier" : "pendingCommentProcessor"
+          },
+          "relationships" : [ {
+            "description" : "Query Pending; update Status; SaveChangesAsync",
+            "destinationId" : "26",
+            "id" : "86",
+            "sourceId" : "29",
+            "tags" : "Relationship"
+          }, {
+            "description" : "CheckTextAsync(content)",
+            "destinationId" : "28",
+            "id" : "87",
+            "sourceId" : "29",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / IHostedService"
+        } ],
+        "description" : "Manages reader comments; moderates via ProfanityService with Polly circuit-breaker fault isolation.",
+        "documentation" : { },
+        "id" : "24",
+        "name" : "CommentService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "commentService"
+        },
+        "relationships" : [ {
+          "description" : "EF Core",
+          "destinationId" : "9",
+          "id" : "57",
+          "sourceId" : "24",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Cache-aside (StackExchange.Redis)",
+          "destinationId" : "7",
+          "id" : "58",
+          "sourceId" : "24",
+          "tags" : "Relationship"
+        }, {
+          "description" : "POST /check",
+          "destinationId" : "37",
+          "id" : "59",
+          "sourceId" : "24",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      }, {
+        "components" : [ {
+          "description" : "Static class. Routes: POST /drafts, GET /drafts, GET /drafts/{id}, PUT /drafts/{id}, DELETE /drafts/{id}. Draft model: Id, Title, Content, Author, CreatedAt, UpdatedAt.",
+          "documentation" : { },
+          "id" : "31",
+          "name" : "DraftEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "draftEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "CRUD operations",
+            "destinationId" : "32",
+            "id" : "89",
+            "sourceId" : "31",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "DbContext with DbSet<Draft>. Draft entity mapped to drafts table.",
+          "documentation" : { },
+          "id" : "32",
+          "name" : "DraftDbContext",
+          "properties" : {
+            "structurizr.dsl.identifier" : "draftDbContext"
+          },
+          "relationships" : [ {
+            "description" : "EF Core queries",
+            "destinationId" : "10",
+            "id" : "88",
+            "sourceId" : "32",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / EF Core"
+        } ],
+        "description" : "Manages publisher article drafts.",
+        "documentation" : { },
+        "id" : "30",
+        "name" : "DraftService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "draftService"
+        },
+        "relationships" : [ {
+          "description" : "EF Core",
+          "destinationId" : "10",
+          "id" : "60",
+          "sourceId" : "30",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      }, {
+        "components" : [ {
+          "description" : "Route: POST /newsletters/send. Calls SubscriberServiceClient.GetSubscribersAsync(); iterates and dispatches newsletter to each. Returns 503 if circuit breaker is open.",
+          "documentation" : { },
+          "id" : "34",
+          "name" : "NewsletterEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "newsletterEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "GetSubscribersAsync()",
+            "destinationId" : "35",
+            "id" : "92",
+            "sourceId" : "34",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "Typed HttpClient. GetSubscribersAsync() GETs /subscribers on SubscriberService; returns List<SubscriberMessage> {Id, Email, SubscribedAt}. Circuit breaker: 50% failure / 30s window / 15s break.",
+          "documentation" : { },
+          "id" : "35",
+          "name" : "SubscriberServiceClient",
+          "properties" : {
+            "structurizr.dsl.identifier" : "subscriberClient"
+          },
+          "relationships" : [ {
+            "description" : "GET /subscribers (circuit-breaker)",
+            "destinationId" : "43",
+            "id" : "90",
+            "sourceId" : "35",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Polly / HttpClient"
+        }, {
+          "description" : "BackgroundService. Connects to RabbitMQ; consumes from subscribers queue. Deserialises SubscriberMessage and logs the welcome-mail event.",
+          "documentation" : { },
+          "id" : "36",
+          "name" : "SubscriberQueueConsumer",
+          "properties" : {
+            "structurizr.dsl.identifier" : "subscriberQueueConsumer"
+          },
+          "relationships" : [ {
+            "description" : "IModel.BasicConsume on subscribers queue",
+            "destinationId" : "5",
+            "id" : "91",
+            "sourceId" : "36",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / RabbitMQ.Client"
+        } ],
+        "description" : "Sends newsletters to all subscribers; consumes welcome-mail events from RabbitMQ.",
+        "documentation" : { },
+        "id" : "33",
+        "name" : "NewsletterService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "newsletterService"
+        },
+        "relationships" : [ {
+          "description" : "GET /subscribers",
+          "destinationId" : "43",
+          "id" : "61",
+          "sourceId" : "33",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Consume subscribers queue",
+          "destinationId" : "5",
+          "id" : "62",
+          "sourceId" : "33",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      }, {
+        "components" : [ {
+          "description" : "Routes: POST /check (CheckRequest→CheckResponse {bool ContainsProfanity, List<string> MatchedWords}), GET /words, POST /words (AddWordRequest), DELETE /words/{word}. DB seeded with: badword, spam, hate.",
+          "documentation" : { },
+          "id" : "38",
+          "name" : "ProfanityEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "profanityEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "Query words; case-insensitive text check; add/delete",
+            "destinationId" : "39",
+            "id" : "94",
+            "sourceId" : "38",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "DbContext with DbSet<ProfanityWord>. ProfanityWord: int Id, string Word.",
+          "documentation" : { },
+          "id" : "39",
+          "name" : "ProfanityDbContext",
+          "properties" : {
+            "structurizr.dsl.identifier" : "profanityDbContext"
+          },
+          "relationships" : [ {
+            "description" : "EF Core queries",
+            "destinationId" : "11",
+            "id" : "93",
+            "sourceId" : "39",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / EF Core"
+        } ],
+        "description" : "Checks submitted text against a managed banned-word list. Called by CommentService.",
+        "documentation" : { },
+        "id" : "37",
+        "name" : "ProfanityService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "profanityService"
+        },
+        "relationships" : [ {
+          "description" : "EF Core",
+          "destinationId" : "11",
+          "id" : "66",
+          "sourceId" : "37",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      }, {
+        "components" : [ {
+          "description" : "Route: POST /publish (PublishRequest {Title, Content, Author, Region}). Builds ArticleMessage with new Guid. Calls ArticleQueuePublisher.Publish. Returns 202 with generated Id and Region.",
+          "documentation" : { },
+          "id" : "41",
+          "name" : "PublisherEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "publisherEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "Publish(ArticleMessage)",
+            "destinationId" : "42",
+            "id" : "96",
+            "sourceId" : "41",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "Implements IDisposable. Constructor opens RabbitMQ connection and declares articles queue. Publish(ArticleMessage) serialises to JSON, injects W3C traceparent header via ActivitySource for end-to-end Jaeger trace linking.",
+          "documentation" : { },
+          "id" : "42",
+          "name" : "ArticleQueuePublisher",
+          "properties" : {
+            "structurizr.dsl.identifier" : "articleQueuePublisher"
+          },
+          "relationships" : [ {
+            "description" : "IModel.BasicPublish to articles queue",
+            "destinationId" : "5",
+            "id" : "95",
+            "sourceId" : "42",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / RabbitMQ.Client / OpenTelemetry"
+        } ],
+        "description" : "Accepts article submissions; enqueues asynchronously; returns 202 Accepted immediately.",
+        "documentation" : { },
+        "id" : "40",
+        "name" : "PublisherService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "publisherService"
+        },
+        "relationships" : [ {
+          "description" : "Publish to articles queue",
+          "destinationId" : "5",
+          "id" : "56",
+          "sourceId" : "40",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      }, {
+        "components" : [ {
+          "description" : "Routes: POST /subscribers (SubscribeRequest {Email}), DELETE /subscribers/{email}, GET /subscribers. POST adds Subscriber row and enqueues welcome-mail event.",
+          "documentation" : { },
+          "id" : "44",
+          "name" : "SubscriberEndpoints",
+          "properties" : {
+            "structurizr.dsl.identifier" : "subscriberEndpoints"
+          },
+          "relationships" : [ {
+            "description" : "Add / Query / Delete",
+            "destinationId" : "45",
+            "id" : "100",
+            "sourceId" : "44",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Publish(subscriber)",
+            "destinationId" : "46",
+            "id" : "101",
+            "sourceId" : "44",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / Minimal API"
+        }, {
+          "description" : "DbContext with DbSet<Subscriber>. Subscriber: Id (Guid), Email (unique index), SubscribedAt.",
+          "documentation" : { },
+          "id" : "45",
+          "name" : "SubscriberDbContext",
+          "properties" : {
+            "structurizr.dsl.identifier" : "subscriberDbContext"
+          },
+          "relationships" : [ {
+            "description" : "EF Core queries",
+            "destinationId" : "12",
+            "id" : "97",
+            "sourceId" : "45",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / EF Core"
+        }, {
+          "description" : "Implements IDisposable. Publish(Subscriber) serialises to JSON and publishes to RabbitMQ subscribers queue, triggering welcome-mail flow in NewsletterService.",
+          "documentation" : { },
+          "id" : "46",
+          "name" : "SubscriberQueuePublisher",
+          "properties" : {
+            "structurizr.dsl.identifier" : "subscriberQueuePublisher"
+          },
+          "relationships" : [ {
+            "description" : "IModel.BasicPublish to subscribers queue",
+            "destinationId" : "5",
+            "id" : "98",
+            "sourceId" : "46",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / RabbitMQ.Client"
+        }, {
+          "description" : "Runs on every request. Reads subscriber_service_enabled flag from FeatureHub SDK. Returns 503 Service Unavailable if flag is off. Fail-open: if FeatureHub is unreachable, proceeds normally.",
+          "documentation" : { },
+          "id" : "47",
+          "name" : "FeatureHub Middleware",
+          "properties" : {
+            "structurizr.dsl.identifier" : "featureHubMiddleware"
+          },
+          "relationships" : [ {
+            "description" : "GetFlag(subscriber_service_enabled)",
+            "destinationId" : "13",
+            "id" : "99",
+            "sourceId" : "47",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "C# / FeatureHub SDK"
+        } ],
+        "description" : "Manages newsletter subscriptions. Feature-flag gated via FeatureHub.",
+        "documentation" : { },
+        "id" : "43",
+        "name" : "SubscriberService",
+        "properties" : {
+          "structurizr.dsl.identifier" : "subscriberService"
+        },
+        "relationships" : [ {
+          "description" : "EF Core",
+          "destinationId" : "12",
+          "id" : "63",
+          "sourceId" : "43",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Publish to subscribers queue",
+          "destinationId" : "5",
+          "id" : "64",
+          "sourceId" : "43",
+          "tags" : "Relationship"
+        }, {
+          "description" : "subscriber_service_enabled flag",
+          "destinationId" : "13",
+          "id" : "65",
+          "sourceId" : "43",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : ".NET 8 / ASP.NET Core"
+      } ],
+      "description" : "Distributes positive news globally.",
+      "documentation" : { },
+      "id" : "3",
+      "name" : "HappyHeadlines",
+      "properties" : {
+        "structurizr.dsl.identifier" : "system"
+      },
+      "tags" : "Element,Software System"
+    } ]
+  },
+  "name" : "HappyHeadlines",
+  "properties" : {
+    "structurizr.inspection.error" : "69",
+    "structurizr.dsl" : "d29ya3NwYWNlICJIYXBweUhlYWRsaW5lcyIgIlBvc2l0aXZlIG5ld3MgbWljcm9zZXJ2aWNlcyBwbGF0Zm9ybSIgewoKICAgIG1vZGVsIHsKICAgICAgICB1c2VyICAgICAgPSBwZXJzb24gIlJlYWRlciIgICAgIlJlYWRzIGFydGljbGVzIGFuZCBzdWJtaXRzIGNvbW1lbnRzLiIKICAgICAgICBwdWJsaXNoZXIgPSBwZXJzb24gIlB1Ymxpc2hlciIgIlB1Ymxpc2hlcyBhcnRpY2xlcyB2aWEgdGhlIEFQSS4iCgogICAgICAgIHN5c3RlbSA9IHNvZnR3YXJlU3lzdGVtICJIYXBweUhlYWRsaW5lcyIgIkRpc3RyaWJ1dGVzIHBvc2l0aXZlIG5ld3MgZ2xvYmFsbHkuIiB7CgogICAgICAgICAgICAjIOKUgOKUgCBJbmZyYXN0cnVjdHVyZSDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICAgbmdpbnggPSBjb250YWluZXIgIm5naW54IiAiUm91bmQtcm9iaW4gbG9hZCBiYWxhbmNlciBhY3Jvc3MgMyBBcnRpY2xlU2VydmljZSByZXBsaWNhcyIgIm5naW54IiAiSW5mcmFzdHJ1Y3R1cmUiCgogICAgICAgICAgICAjIOKUgOKUgCBNZXNzYWdpbmcg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICAgIHJhYmJpdE1RID0gY29udGFpbmVyICJSYWJiaXRNUSIgIkFzeW5jIG1lc3NhZ2UgYnJva2VyLiBRdWV1ZXM6IGFydGljbGVzLCBzdWJzY3JpYmVycyIgIlJhYmJpdE1RIDMiICJNZXNzYWdpbmciCgogICAgICAgICAgICAjIOKUgOKUgCBDYWNoZXMg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICAgIHJlZGlzQXJ0aWNsZXMgPSBjb250YWluZXIgInJlZGlzX2FydGljbGVzIiAiQXJ0aWNsZSBjYWNoZS4gVFRMIDE1IG1pbiBkZWZhdWx0LiBXYXJtZWQgZXZlcnkgNSBtaW4uIiAiUmVkaXMgNyIgIkNhY2hlIgogICAgICAgICAgICByZWRpc0NvbW1lbnRzID0gY29udGFpbmVyICJyZWRpc19jb21tZW50cyIgIkNvbW1lbnQgY2FjaGUuIFRUTCAxNSBtaW4uIExSVS0zMCBldmljdGlvbiB2aWEgc29ydGVkIHNldC4iICJSZWRpcyA3IiAiQ2FjaGUiCgogICAgICAgICAgICAjIOKUgOKUgCBEYXRhYmFzZXMg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICAgIGRiQXJ0aWNsZXMgICAgID0gY29udGFpbmVyICJBcnRpY2xlIERhdGFiYXNlcyIgICI4IHJlZ2lvbmFsIFBvc3RncmVTUUwgc2hhcmRzOiBBZnJpY2EsIEFudGFyY3RpY2EsIEFzaWEsIEF1c3RyYWxpYSwgRXVyb3BlLCBOb3J0aEFtZXJpY2EsIFNvdXRoQW1lcmljYSwgR2xvYmFsIiAiUG9zdGdyZVNRTCAxNiIgIkRhdGFiYXNlIgogICAgICAgICAgICBkYkNvbW1lbnRzICAgICA9IGNvbnRhaW5lciAiZGJfY29tbWVudHMiICAgICJTdG9yZXMgQ29tbWVudCByb3dzIChQZW5kaW5nIC8gQXBwcm92ZWQgLyBSZWplY3RlZCkiICJQb3N0Z3JlU1FMIDE2IiAiRGF0YWJhc2UiCiAgICAgICAgICAgIGRiRHJhZnRzICAgICAgID0gY29udGFpbmVyICJkYl9kcmFmdHMiICAgICAgIlN0b3JlcyBEcmFmdCByb3dzIiAiUG9zdGdyZVNRTCAxNiIgIkRhdGFiYXNlIgogICAgICAgICAgICBkYlByb2Zhbml0eSAgICA9IGNvbnRhaW5lciAiZGJfcHJvZmFuaXR5IiAgICJTdG9yZXMgUHJvZmFuaXR5V29yZCByb3dzIiAiUG9zdGdyZVNRTCAxNiIgIkRhdGFiYXNlIgogICAgICAgICAgICBkYlN1YnNjcmliZXJzICA9IGNvbnRhaW5lciAiZGJfc3Vic2NyaWJlcnMiICJTdG9yZXMgU3Vic2NyaWJlciByb3dzICh1bmlxdWUgRW1haWwgaW5kZXgpIiAiUG9zdGdyZVNRTCAxNiIgIkRhdGFiYXNlIgoKICAgICAgICAgICAgIyDilIDilIAgRmVhdHVyZSBmbGFncyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICAgZmVhdHVyZUh1YiA9IGNvbnRhaW5lciAiRmVhdHVyZUh1YiIgIkZlYXR1cmUgZmxhZyBzZXJ2ZXIuIEZsYWc6IHN1YnNjcmliZXJfc2VydmljZV9lbmFibGVkIiAiRmVhdHVyZUh1YiIKCiAgICAgICAgICAgICMg4pSA4pSAIE9ic2VydmFiaWxpdHkg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICAgIHByb21ldGhldXMgPSBjb250YWluZXIgIlByb21ldGhldXMiICJTY3JhcGVzIC9tZXRyaWNzIGZyb20gc2VydmljZXMiICAgICAgICAiUHJvbWV0aGV1cyIgIk1vbml0b3JpbmciCiAgICAgICAgICAgIGdyYWZhbmEgICAgPSBjb250YWluZXIgIkdyYWZhbmEiICAgICJDYWNoZSBoaXQtcmF0aW8gZGFzaGJvYXJkcyAocG9ydCAzMDAwKSIgIkdyYWZhbmEiICAgICJNb25pdG9yaW5nIgogICAgICAgICAgICBzZXEgICAgICAgID0gY29udGFpbmVyICJTZXEiICAgICAgICAiU3RydWN0dXJlZCBsb2cgYWdncmVnYXRpb24gKHBvcnQgNTM0MSkiICJTZXEiICAgICAgICAiTW9uaXRvcmluZyIKICAgICAgICAgICAgamFlZ2VyICAgICA9IGNvbnRhaW5lciAiSmFlZ2VyIiAgICAgIkRpc3RyaWJ1dGVkIHRyYWNpbmcgKHBvcnQgMTY2ODYpIiAgICAgICAiSmFlZ2VyIiAgICAgIk1vbml0b3JpbmciCgogICAgICAgICAgICAjIOKUgOKUgCBBcnRpY2xlU2VydmljZSDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICAgYXJ0aWNsZVNlcnZpY2UgPSBjb250YWluZXIgIkFydGljbGVTZXJ2aWNlIiAiQ29uc3VtZXMgbmV3IGFydGljbGVzIGZyb20gcXVldWU7IHNlcnZlcyByZWFkcyB3aXRoIGNhY2hlLWFzaWRlLiAzIHJlcGxpY2FzIGJlaGluZCBuZ2lueC4iICIuTkVUIDggLyBBU1AuTkVUIENvcmUiIHsKCiAgICAgICAgICAgICAgICBhcnRpY2xlRW5kcG9pbnRzID0gY29tcG9uZW50ICJBcnRpY2xlRW5kcG9pbnRzIiAiU3RhdGljIGNsYXNzLiBSZWdpc3RlcnMgTWluaW1hbCBBUEkgcm91dGVzOiBQT1NUIC9hcnRpY2xlcywgR0VUIC9hcnRpY2xlcz9yZWdpb24sIEdFVCAvYXJ0aWNsZXMve2lkfT9yZWdpb24sIFBVVCAvYXJ0aWNsZXMve2lkfT9yZWdpb24sIERFTEVURSAvYXJ0aWNsZXMve2lkfT9yZWdpb24uIFVzZXMgcmVjb3JkcyBDcmVhdGVBcnRpY2xlUmVxdWVzdCBhbmQgVXBkYXRlQXJ0aWNsZVJlcXVlc3QuIiAiQyMgLyBNaW5pbWFsIEFQSSIKCiAgICAgICAgICAgICAgICBhcnRpY2xlRGJDb250ZXh0RmFjdG9yeSA9IGNvbXBvbmVudCAiQXJ0aWNsZURiQ29udGV4dEZhY3RvcnkiICJSZWFkcyA4IHJlZ2lvbmFsIGNvbm5lY3Rpb24gc3RyaW5ncyBmcm9tIElDb25maWd1cmF0aW9uLiBDcmVhdGVGb3JSZWdpb24oUmVnaW9uKSByZXR1cm5zIGEgc2NvcGVkIEFydGljbGVEYkNvbnRleHQgcG9pbnRlZCBhdCB0aGUgY29ycmVjdCBQb3N0Z3JlU1FMIHNoYXJkLiIgIkMjIC8gRUYgQ29yZSIKCiAgICAgICAgICAgICAgICBhcnRpY2xlQ2FjaGUgPSBjb21wb25lbnQgIkFydGljbGVDYWNoZSIgIklDb25maWd1cmF0aW9uICsgQ29ubmVjdGlvbk11bHRpcGxleGVyIGluamVjdGVkIHZpYSBjb25zdHJ1Y3Rvci4gTGlzdCBrZXk6IGFydGljbGVzOntyZWdpb259LiBJdGVtIGtleTogYXJ0aWNsZTp7aWR9OntyZWdpb259LiBNZXRob2RzOiBHZXRBcnRpY2xlc0FzeW5jLCBTZXRBcnRpY2xlc0FzeW5jLCBHZXRBcnRpY2xlQXN5bmMsIFNldEFydGljbGVBc3luYy4iICJDIyAvIFN0YWNrRXhjaGFuZ2UuUmVkaXMiCgogICAgICAgICAgICAgICAgYXJ0aWNsZVF1ZXVlQ29uc3VtZXIgPSBjb21wb25lbnQgIkFydGljbGVRdWV1ZUNvbnN1bWVyIiAiQmFja2dyb3VuZFNlcnZpY2UuIENvbm5lY3RzIHRvIFJhYmJpdE1RIG9uIHN0YXJ0dXA7IGRlY2xhcmVzIGFydGljbGVzIHF1ZXVlLiBEZXNlcmlhbGlzZXMgQXJ0aWNsZU1lc3NhZ2U7IGV4dHJhY3RzIFczQyB0cmFjZXBhcmVudCBmb3IgSmFlZ2VyLiBDYWxscyBBcnRpY2xlRGJDb250ZXh0RmFjdG9yeS5DcmVhdGVGb3JSZWdpb24gdG8gcGVyc2lzdDsgY2FsbHMgQXJ0aWNsZUNhY2hlIHRvIGludmFsaWRhdGUuIiAiQyMgLyBSYWJiaXRNUS5DbGllbnQgLyBPcGVuVGVsZW1ldHJ5IgoKICAgICAgICAgICAgICAgIGFydGljbGVDYWNoZVdhcm1lciA9IGNvbXBvbmVudCAiQXJ0aWNsZUNhY2hlV2FybWVyIiAiQmFja2dyb3VuZFNlcnZpY2UuIE9uIHN0YXJ0dXAgYW5kIGV2ZXJ5IDUgbWluIGNhbGxzIFdhcm1BbGxSZWdpb25zQXN5bmM6IGl0ZXJhdGVzIGFsbCBSZWdpb24gdmFsdWVzLCBxdWVyaWVzIEFydGljbGVEYkNvbnRleHRGYWN0b3J5LCB3cml0ZXMgdG8gQXJ0aWNsZUNhY2hlIHdpdGggMTAtbWluIFRUTC4iICJDIyAvIElIb3N0ZWRTZXJ2aWNlIgogICAgICAgICAgICB9CgogICAgICAgICAgICAjIOKUgOKUgCBDb21tZW50U2VydmljZSDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICAgY29tbWVudFNlcnZpY2UgPSBjb250YWluZXIgIkNvbW1lbnRTZXJ2aWNlIiAiTWFuYWdlcyByZWFkZXIgY29tbWVudHM7IG1vZGVyYXRlcyB2aWEgUHJvZmFuaXR5U2VydmljZSB3aXRoIFBvbGx5IGNpcmN1aXQtYnJlYWtlciBmYXVsdCBpc29sYXRpb24uIiAiLk5FVCA4IC8gQVNQLk5FVCBDb3JlIiB7CgogICAgICAgICAgICAgICAgY29tbWVudEVuZHBvaW50cyA9IGNvbXBvbmVudCAiQ29tbWVudEVuZHBvaW50cyIgIlN0YXRpYyBjbGFzcy4gUm91dGVzOiBQT1NUIC9jb21tZW50cyAocmVjb3JkIENyZWF0ZUNvbW1lbnRSZXF1ZXN0KSwgR0VUIC9jb21tZW50cz9hcnRpY2xlSWQsIERFTEVURSAvY29tbWVudHMve2lkfS4gUmV0dXJucyAyMDIgQWNjZXB0ZWQgd2hlbiBjaXJjdWl0IGJyZWFrZXIgaXMgb3BlbiAoY29tbWVudCBzYXZlZCBhcyBQZW5kaW5nKS4iICJDIyAvIE1pbmltYWwgQVBJIgoKICAgICAgICAgICAgICAgIGNvbW1lbnREYkNvbnRleHQgPSBjb21wb25lbnQgIkNvbW1lbnREYkNvbnRleHQiICJEYkNvbnRleHQgd2l0aCBEYlNldDxDb21tZW50Pi4gQ29tbWVudCBoYXM6IElkIChHdWlkKSwgQXJ0aWNsZUlkIChHdWlkKSwgQXV0aG9yLCBDb250ZW50LCBTdGF0dXMgKENvbW1lbnRTdGF0dXMgZW51bTogUGVuZGluZy9BcHByb3ZlZC9SZWplY3RlZCksIENyZWF0ZWRBdC4iICJDIyAvIEVGIENvcmUiCgogICAgICAgICAgICAgICAgY29tbWVudENhY2hlID0gY29tcG9uZW50ICJDb21tZW50Q2FjaGUiICJQZXItYXJ0aWNsZUlkIGNhY2hlLiBLZXk6IGNvbW1lbnRzOnthcnRpY2xlSWR9LiBMUlUgdHJhY2tpbmcgdmlhIHNvcnRlZCBzZXQgY29tbWVudHM6bHJ1IHNjb3JlZCBieSBVbml4IHRpbWVzdGFtcDsgZXZpY3RzIG9sZGVzdCBlbnRyeSB3aGVuIGNvdW50IGV4Y2VlZHMgMzAuIE1ldGhvZHM6IEdldENvbW1lbnRzQXN5bmMsIFNldENvbW1lbnRzQXN5bmMsIEludmFsaWRhdGVBc3luYy4iICJDIyAvIFN0YWNrRXhjaGFuZ2UuUmVkaXMiCgogICAgICAgICAgICAgICAgcHJvZmFuaXR5Q2xpZW50ID0gY29tcG9uZW50ICJQcm9mYW5pdHlTZXJ2aWNlQ2xpZW50IiAiVHlwZWQgSHR0cENsaWVudC4gQ2hlY2tUZXh0QXN5bmMoc3RyaW5nIHRleHQpIFBPU1RzIHRvIC9jaGVjayBhbmQgcmV0dXJucyBDaGVja1Jlc3VsdCB7Ym9vbCBDb250YWluc1Byb2Zhbml0eSwgTGlzdDxzdHJpbmc+IE1hdGNoZWRXb3Jkc30uIFBvbGx5IGNpcmN1aXQgYnJlYWtlcjogNTAlIGZhaWx1cmUgcmF0aW8sIG1pbiAzIGNhbGxzLCAzMHMgc2FtcGxpbmcgd2luZG93LCAxNXMgYnJlYWsgZHVyYXRpb24uIiAiQyMgLyBQb2xseSAvIEh0dHBDbGllbnQiCgogICAgICAgICAgICAgICAgcGVuZGluZ0NvbW1lbnRQcm9jZXNzb3IgPSBjb21wb25lbnQgIlBlbmRpbmdDb21tZW50UHJvY2Vzc29yIiAiQmFja2dyb3VuZFNlcnZpY2UuIEV2ZXJ5IDMwIHMgcXVlcmllcyBDb21tZW50RGJDb250ZXh0IGZvciBTdGF0dXM9PVBlbmRpbmcgY29tbWVudHMuIENhbGxzIFByb2Zhbml0eVNlcnZpY2VDbGllbnQuQ2hlY2tUZXh0QXN5bmM7IHNldHMgc3RhdHVzIHRvIEFwcHJvdmVkIG9yIFJlamVjdGVkOyBzYXZlcyBjaGFuZ2VzLiIgIkMjIC8gSUhvc3RlZFNlcnZpY2UiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgICMg4pSA4pSAIERyYWZ0U2VydmljZSDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICAgZHJhZnRTZXJ2aWNlID0gY29udGFpbmVyICJEcmFmdFNlcnZpY2UiICJNYW5hZ2VzIHB1Ymxpc2hlciBhcnRpY2xlIGRyYWZ0cy4iICIuTkVUIDggLyBBU1AuTkVUIENvcmUiIHsKCiAgICAgICAgICAgICAgICBkcmFmdEVuZHBvaW50cyA9IGNvbXBvbmVudCAiRHJhZnRFbmRwb2ludHMiICJTdGF0aWMgY2xhc3MuIFJvdXRlczogUE9TVCAvZHJhZnRzLCBHRVQgL2RyYWZ0cywgR0VUIC9kcmFmdHMve2lkfSwgUFVUIC9kcmFmdHMve2lkfSwgREVMRVRFIC9kcmFmdHMve2lkfS4gRHJhZnQgbW9kZWw6IElkLCBUaXRsZSwgQ29udGVudCwgQXV0aG9yLCBDcmVhdGVkQXQsIFVwZGF0ZWRBdC4iICJDIyAvIE1pbmltYWwgQVBJIgoKICAgICAgICAgICAgICAgIGRyYWZ0RGJDb250ZXh0ID0gY29tcG9uZW50ICJEcmFmdERiQ29udGV4dCIgIkRiQ29udGV4dCB3aXRoIERiU2V0PERyYWZ0Pi4gRHJhZnQgZW50aXR5IG1hcHBlZCB0byBkcmFmdHMgdGFibGUuIiAiQyMgLyBFRiBDb3JlIgogICAgICAgICAgICB9CgogICAgICAgICAgICAjIOKUgOKUgCBOZXdzbGV0dGVyU2VydmljZSDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICAgbmV3c2xldHRlclNlcnZpY2UgPSBjb250YWluZXIgIk5ld3NsZXR0ZXJTZXJ2aWNlIiAiU2VuZHMgbmV3c2xldHRlcnMgdG8gYWxsIHN1YnNjcmliZXJzOyBjb25zdW1lcyB3ZWxjb21lLW1haWwgZXZlbnRzIGZyb20gUmFiYml0TVEuIiAiLk5FVCA4IC8gQVNQLk5FVCBDb3JlIiB7CgogICAgICAgICAgICAgICAgbmV3c2xldHRlckVuZHBvaW50cyA9IGNvbXBvbmVudCAiTmV3c2xldHRlckVuZHBvaW50cyIgIlJvdXRlOiBQT1NUIC9uZXdzbGV0dGVycy9zZW5kLiBDYWxscyBTdWJzY3JpYmVyU2VydmljZUNsaWVudC5HZXRTdWJzY3JpYmVyc0FzeW5jKCk7IGl0ZXJhdGVzIGFuZCBkaXNwYXRjaGVzIG5ld3NsZXR0ZXIgdG8gZWFjaC4gUmV0dXJucyA1MDMgaWYgY2lyY3VpdCBicmVha2VyIGlzIG9wZW4uIiAiQyMgLyBNaW5pbWFsIEFQSSIKCiAgICAgICAgICAgICAgICBzdWJzY3JpYmVyQ2xpZW50ID0gY29tcG9uZW50ICJTdWJzY3JpYmVyU2VydmljZUNsaWVudCIgIlR5cGVkIEh0dHBDbGllbnQuIEdldFN1YnNjcmliZXJzQXN5bmMoKSBHRVRzIC9zdWJzY3JpYmVycyBvbiBTdWJzY3JpYmVyU2VydmljZTsgcmV0dXJucyBMaXN0PFN1YnNjcmliZXJNZXNzYWdlPiB7SWQsIEVtYWlsLCBTdWJzY3JpYmVkQXR9LiBDaXJjdWl0IGJyZWFrZXI6IDUwJSBmYWlsdXJlIC8gMzBzIHdpbmRvdyAvIDE1cyBicmVhay4iICJDIyAvIFBvbGx5IC8gSHR0cENsaWVudCIKCiAgICAgICAgICAgICAgICBzdWJzY3JpYmVyUXVldWVDb25zdW1lciA9IGNvbXBvbmVudCAiU3Vic2NyaWJlclF1ZXVlQ29uc3VtZXIiICJCYWNrZ3JvdW5kU2VydmljZS4gQ29ubmVjdHMgdG8gUmFiYml0TVE7IGNvbnN1bWVzIGZyb20gc3Vic2NyaWJlcnMgcXVldWUuIERlc2VyaWFsaXNlcyBTdWJzY3JpYmVyTWVzc2FnZSBhbmQgbG9ncyB0aGUgd2VsY29tZS1tYWlsIGV2ZW50LiIgIkMjIC8gUmFiYml0TVEuQ2xpZW50IgogICAgICAgICAgICB9CgogICAgICAgICAgICAjIOKUgOKUgCBQcm9mYW5pdHlTZXJ2aWNlIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgICBwcm9mYW5pdHlTZXJ2aWNlID0gY29udGFpbmVyICJQcm9mYW5pdHlTZXJ2aWNlIiAiQ2hlY2tzIHN1Ym1pdHRlZCB0ZXh0IGFnYWluc3QgYSBtYW5hZ2VkIGJhbm5lZC13b3JkIGxpc3QuIENhbGxlZCBieSBDb21tZW50U2VydmljZS4iICIuTkVUIDggLyBBU1AuTkVUIENvcmUiIHsKCiAgICAgICAgICAgICAgICBwcm9mYW5pdHlFbmRwb2ludHMgPSBjb21wb25lbnQgIlByb2Zhbml0eUVuZHBvaW50cyIgIlJvdXRlczogUE9TVCAvY2hlY2sgKENoZWNrUmVxdWVzdOKGkkNoZWNrUmVzcG9uc2Uge2Jvb2wgQ29udGFpbnNQcm9mYW5pdHksIExpc3Q8c3RyaW5nPiBNYXRjaGVkV29yZHN9KSwgR0VUIC93b3JkcywgUE9TVCAvd29yZHMgKEFkZFdvcmRSZXF1ZXN0KSwgREVMRVRFIC93b3Jkcy97d29yZH0uIERCIHNlZWRlZCB3aXRoOiBiYWR3b3JkLCBzcGFtLCBoYXRlLiIgIkMjIC8gTWluaW1hbCBBUEkiCgogICAgICAgICAgICAgICAgcHJvZmFuaXR5RGJDb250ZXh0ID0gY29tcG9uZW50ICJQcm9mYW5pdHlEYkNvbnRleHQiICJEYkNvbnRleHQgd2l0aCBEYlNldDxQcm9mYW5pdHlXb3JkPi4gUHJvZmFuaXR5V29yZDogaW50IElkLCBzdHJpbmcgV29yZC4iICJDIyAvIEVGIENvcmUiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgICMg4pSA4pSAIFB1Ymxpc2hlclNlcnZpY2Ug4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICAgIHB1Ymxpc2hlclNlcnZpY2UgPSBjb250YWluZXIgIlB1Ymxpc2hlclNlcnZpY2UiICJBY2NlcHRzIGFydGljbGUgc3VibWlzc2lvbnM7IGVucXVldWVzIGFzeW5jaHJvbm91c2x5OyByZXR1cm5zIDIwMiBBY2NlcHRlZCBpbW1lZGlhdGVseS4iICIuTkVUIDggLyBBU1AuTkVUIENvcmUiIHsKCiAgICAgICAgICAgICAgICBwdWJsaXNoZXJFbmRwb2ludHMgPSBjb21wb25lbnQgIlB1Ymxpc2hlckVuZHBvaW50cyIgIlJvdXRlOiBQT1NUIC9wdWJsaXNoIChQdWJsaXNoUmVxdWVzdCB7VGl0bGUsIENvbnRlbnQsIEF1dGhvciwgUmVnaW9ufSkuIEJ1aWxkcyBBcnRpY2xlTWVzc2FnZSB3aXRoIG5ldyBHdWlkLiBDYWxscyBBcnRpY2xlUXVldWVQdWJsaXNoZXIuUHVibGlzaC4gUmV0dXJucyAyMDIgd2l0aCBnZW5lcmF0ZWQgSWQgYW5kIFJlZ2lvbi4iICJDIyAvIE1pbmltYWwgQVBJIgoKICAgICAgICAgICAgICAgIGFydGljbGVRdWV1ZVB1Ymxpc2hlciA9IGNvbXBvbmVudCAiQXJ0aWNsZVF1ZXVlUHVibGlzaGVyIiAiSW1wbGVtZW50cyBJRGlzcG9zYWJsZS4gQ29uc3RydWN0b3Igb3BlbnMgUmFiYml0TVEgY29ubmVjdGlvbiBhbmQgZGVjbGFyZXMgYXJ0aWNsZXMgcXVldWUuIFB1Ymxpc2goQXJ0aWNsZU1lc3NhZ2UpIHNlcmlhbGlzZXMgdG8gSlNPTiwgaW5qZWN0cyBXM0MgdHJhY2VwYXJlbnQgaGVhZGVyIHZpYSBBY3Rpdml0eVNvdXJjZSBmb3IgZW5kLXRvLWVuZCBKYWVnZXIgdHJhY2UgbGlua2luZy4iICJDIyAvIFJhYmJpdE1RLkNsaWVudCAvIE9wZW5UZWxlbWV0cnkiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgICMg4pSA4pSAIFN1YnNjcmliZXJTZXJ2aWNlIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgICBzdWJzY3JpYmVyU2VydmljZSA9IGNvbnRhaW5lciAiU3Vic2NyaWJlclNlcnZpY2UiICJNYW5hZ2VzIG5ld3NsZXR0ZXIgc3Vic2NyaXB0aW9ucy4gRmVhdHVyZS1mbGFnIGdhdGVkIHZpYSBGZWF0dXJlSHViLiIgIi5ORVQgOCAvIEFTUC5ORVQgQ29yZSIgewoKICAgICAgICAgICAgICAgIHN1YnNjcmliZXJFbmRwb2ludHMgPSBjb21wb25lbnQgIlN1YnNjcmliZXJFbmRwb2ludHMiICJSb3V0ZXM6IFBPU1QgL3N1YnNjcmliZXJzIChTdWJzY3JpYmVSZXF1ZXN0IHtFbWFpbH0pLCBERUxFVEUgL3N1YnNjcmliZXJzL3tlbWFpbH0sIEdFVCAvc3Vic2NyaWJlcnMuIFBPU1QgYWRkcyBTdWJzY3JpYmVyIHJvdyBhbmQgZW5xdWV1ZXMgd2VsY29tZS1tYWlsIGV2ZW50LiIgIkMjIC8gTWluaW1hbCBBUEkiCgogICAgICAgICAgICAgICAgc3Vic2NyaWJlckRiQ29udGV4dCA9IGNvbXBvbmVudCAiU3Vic2NyaWJlckRiQ29udGV4dCIgIkRiQ29udGV4dCB3aXRoIERiU2V0PFN1YnNjcmliZXI+LiBTdWJzY3JpYmVyOiBJZCAoR3VpZCksIEVtYWlsICh1bmlxdWUgaW5kZXgpLCBTdWJzY3JpYmVkQXQuIiAiQyMgLyBFRiBDb3JlIgoKICAgICAgICAgICAgICAgIHN1YnNjcmliZXJRdWV1ZVB1Ymxpc2hlciA9IGNvbXBvbmVudCAiU3Vic2NyaWJlclF1ZXVlUHVibGlzaGVyIiAiSW1wbGVtZW50cyBJRGlzcG9zYWJsZS4gUHVibGlzaChTdWJzY3JpYmVyKSBzZXJpYWxpc2VzIHRvIEpTT04gYW5kIHB1Ymxpc2hlcyB0byBSYWJiaXRNUSBzdWJzY3JpYmVycyBxdWV1ZSwgdHJpZ2dlcmluZyB3ZWxjb21lLW1haWwgZmxvdyBpbiBOZXdzbGV0dGVyU2VydmljZS4iICJDIyAvIFJhYmJpdE1RLkNsaWVudCIKCiAgICAgICAgICAgICAgICBmZWF0dXJlSHViTWlkZGxld2FyZSA9IGNvbXBvbmVudCAiRmVhdHVyZUh1YiBNaWRkbGV3YXJlIiAiUnVucyBvbiBldmVyeSByZXF1ZXN0LiBSZWFkcyBzdWJzY3JpYmVyX3NlcnZpY2VfZW5hYmxlZCBmbGFnIGZyb20gRmVhdHVyZUh1YiBTREsuIFJldHVybnMgNTAzIFNlcnZpY2UgVW5hdmFpbGFibGUgaWYgZmxhZyBpcyBvZmYuIEZhaWwtb3BlbjogaWYgRmVhdHVyZUh1YiBpcyB1bnJlYWNoYWJsZSwgcHJvY2VlZHMgbm9ybWFsbHkuIiAiQyMgLyBGZWF0dXJlSHViIFNESyIKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgIyDilIDilIAgRXh0ZXJuYWwgcmVsYXRpb25zaGlwcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICB1c2VyICAgICAgLT4gbmdpbnggICAgICAgICAgIkdFVCAvYXJ0aWNsZXMsIEdFVCAvY29tbWVudHMiCiAgICAgICAgcHVibGlzaGVyIC0+IHB1Ymxpc2hlclNlcnZpY2UgIlBPU1QgL3B1Ymxpc2giCgogICAgICAgICMg4pSA4pSAIENvbnRhaW5lciByZWxhdGlvbnNoaXBzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIG5naW54ICAgICAgICAgICAgLT4gYXJ0aWNsZVNlcnZpY2UgICAiUm91bmQtcm9iaW4gSFRUUCIKICAgICAgICBhcnRpY2xlU2VydmljZSAgIC0+IHJlZGlzQXJ0aWNsZXMgICAgIkNhY2hlLWFzaWRlIChTdGFja0V4Y2hhbmdlLlJlZGlzKSIKICAgICAgICBhcnRpY2xlU2VydmljZSAgIC0+IGRiQXJ0aWNsZXMgICAgICAgIkVGIENvcmUgKDggcmVnaW9uYWwgc2hhcmRzKSIKICAgICAgICBhcnRpY2xlU2VydmljZSAgIC0+IHJhYmJpdE1RICAgICAgICAgIkNvbnN1bWUgYXJ0aWNsZXMgcXVldWUiCiAgICAgICAgcHVibGlzaGVyU2VydmljZSAtPiByYWJiaXRNUSAgICAgICAgICJQdWJsaXNoIHRvIGFydGljbGVzIHF1ZXVlIgogICAgICAgIGNvbW1lbnRTZXJ2aWNlICAgLT4gZGJDb21tZW50cyAgICAgICAiRUYgQ29yZSIKICAgICAgICBjb21tZW50U2VydmljZSAgIC0+IHJlZGlzQ29tbWVudHMgICAgIkNhY2hlLWFzaWRlIChTdGFja0V4Y2hhbmdlLlJlZGlzKSIKICAgICAgICBjb21tZW50U2VydmljZSAgIC0+IHByb2Zhbml0eVNlcnZpY2UgIlBPU1QgL2NoZWNrIgogICAgICAgIGRyYWZ0U2VydmljZSAgICAgLT4gZGJEcmFmdHMgICAgICAgICAiRUYgQ29yZSIKICAgICAgICBuZXdzbGV0dGVyU2VydmljZSAtPiBzdWJzY3JpYmVyU2VydmljZSAiR0VUIC9zdWJzY3JpYmVycyIKICAgICAgICBuZXdzbGV0dGVyU2VydmljZSAtPiByYWJiaXRNUSAgICAgICAgIkNvbnN1bWUgc3Vic2NyaWJlcnMgcXVldWUiCiAgICAgICAgc3Vic2NyaWJlclNlcnZpY2UgLT4gZGJTdWJzY3JpYmVycyAgICJFRiBDb3JlIgogICAgICAgIHN1YnNjcmliZXJTZXJ2aWNlIC0+IHJhYmJpdE1RICAgICAgICAiUHVibGlzaCB0byBzdWJzY3JpYmVycyBxdWV1ZSIKICAgICAgICBzdWJzY3JpYmVyU2VydmljZSAtPiBmZWF0dXJlSHViICAgICAgInN1YnNjcmliZXJfc2VydmljZV9lbmFibGVkIGZsYWciCiAgICAgICAgcHJvZmFuaXR5U2VydmljZSAgLT4gZGJQcm9mYW5pdHkgICAgICJFRiBDb3JlIgogICAgICAgIHByb21ldGhldXMgLT4gYXJ0aWNsZVNlcnZpY2UgICJTY3JhcGUgL21ldHJpY3MiCiAgICAgICAgcHJvbWV0aGV1cyAtPiBjb21tZW50U2VydmljZSAgIlNjcmFwZSAvbWV0cmljcyIKICAgICAgICBwcm9tZXRoZXVzIC0+IHN1YnNjcmliZXJTZXJ2aWNlICJTY3JhcGUgL21ldHJpY3MiCiAgICAgICAgZ3JhZmFuYSAgICAtPiBwcm9tZXRoZXVzICAgICAgIlByb21RTCBxdWVyaWVzIgoKICAgICAgICAjIOKUgOKUgCBBcnRpY2xlU2VydmljZTogY29tcG9uZW50IOKGkiBleHRlcm5hbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBhcnRpY2xlQ2FjaGUgICAgICAgICAgLT4gcmVkaXNBcnRpY2xlcyAgIklEYXRhYmFzZS5TdHJpbmdHZXRBc3luYyAvIFN0cmluZ1NldEFzeW5jIgogICAgICAgIGFydGljbGVEYkNvbnRleHRGYWN0b3J5IC0+IGRiQXJ0aWNsZXMgICAiRGJDb250ZXh0T3B0aW9uc0J1aWxkZXIgcGVyIHJlZ2lvbiIKICAgICAgICBhcnRpY2xlUXVldWVDb25zdW1lciAgLT4gcmFiYml0TVEgICAgICAgIklNb2RlbC5CYXNpY0NvbnN1bWUgb24gYXJ0aWNsZXMgcXVldWUiCgogICAgICAgICMg4pSA4pSAIEFydGljbGVTZXJ2aWNlOiBjb21wb25lbnQg4oaSIGNvbXBvbmVudCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBhcnRpY2xlRW5kcG9pbnRzICAgICAgLT4gYXJ0aWNsZURiQ29udGV4dEZhY3RvcnkgIkNyZWF0ZUZvclJlZ2lvbihyZWdpb24pIgogICAgICAgIGFydGljbGVFbmRwb2ludHMgICAgICAtPiBhcnRpY2xlQ2FjaGUgICAgICAgICAgICAiR2V0QXJ0aWNsZXNBc3luYyAvIFNldEFydGljbGVzQXN5bmMgLyBHZXRBcnRpY2xlQXN5bmMiCiAgICAgICAgYXJ0aWNsZVF1ZXVlQ29uc3VtZXIgIC0+IGFydGljbGVEYkNvbnRleHRGYWN0b3J5ICJDcmVhdGVGb3JSZWdpb24obXNnLlJlZ2lvbikiCiAgICAgICAgYXJ0aWNsZVF1ZXVlQ29uc3VtZXIgIC0+IGFydGljbGVDYWNoZSAgICAgICAgICAgICJTZXRBcnRpY2xlQXN5bmMgKGludmFsaWRhdGUgbGlzdCkiCiAgICAgICAgYXJ0aWNsZUNhY2hlV2FybWVyICAgIC0+IGFydGljbGVEYkNvbnRleHRGYWN0b3J5ICJDcmVhdGVGb3JSZWdpb24gcGVyIFJlZ2lvbiB2YWx1ZSIKICAgICAgICBhcnRpY2xlQ2FjaGVXYXJtZXIgICAgLT4gYXJ0aWNsZUNhY2hlICAgICAgICAgICAgIlNldEFydGljbGVzQXN5bmMocmVnaW9uLCBsaXN0LCB0dGw6MTBtaW4pIgoKICAgICAgICAjIOKUgOKUgCBDb21tZW50U2VydmljZTogY29tcG9uZW50IOKGkiBleHRlcm5hbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBjb21tZW50RGJDb250ZXh0ICAgLT4gZGJDb21tZW50cyAgICAiRUYgQ29yZSBxdWVyaWVzIgogICAgICAgIGNvbW1lbnRDYWNoZSAgICAgICAtPiByZWRpc0NvbW1lbnRzICJJRGF0YWJhc2Ugb3BlcmF0aW9ucyArIHNvcnRlZCBzZXQgZm9yIExSVSIKICAgICAgICBwcm9mYW5pdHlDbGllbnQgICAgLT4gcHJvZmFuaXR5U2VydmljZSAiUE9TVCAvY2hlY2sgKGNpcmN1aXQtYnJlYWtlcikiCgogICAgICAgICMg4pSA4pSAIENvbW1lbnRTZXJ2aWNlOiBjb21wb25lbnQg4oaSIGNvbXBvbmVudCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBjb21tZW50RW5kcG9pbnRzICAgICAgICAgLT4gY29tbWVudERiQ29udGV4dCAgIkFkZCAvIFNhdmVDaGFuZ2VzQXN5bmMiCiAgICAgICAgY29tbWVudEVuZHBvaW50cyAgICAgICAgIC0+IGNvbW1lbnRDYWNoZSAgICAgICJHZXRDb21tZW50c0FzeW5jIC8gSW52YWxpZGF0ZUFzeW5jIgogICAgICAgIGNvbW1lbnRFbmRwb2ludHMgICAgICAgICAtPiBwcm9mYW5pdHlDbGllbnQgICAiQ2hlY2tUZXh0QXN5bmMoY29udGVudCkiCiAgICAgICAgcGVuZGluZ0NvbW1lbnRQcm9jZXNzb3IgIC0+IGNvbW1lbnREYkNvbnRleHQgICJRdWVyeSBQZW5kaW5nOyB1cGRhdGUgU3RhdHVzOyBTYXZlQ2hhbmdlc0FzeW5jIgogICAgICAgIHBlbmRpbmdDb21tZW50UHJvY2Vzc29yICAtPiBwcm9mYW5pdHlDbGllbnQgICAiQ2hlY2tUZXh0QXN5bmMoY29udGVudCkiCgogICAgICAgICMg4pSA4pSAIERyYWZ0U2VydmljZTogY29tcG9uZW50IOKGkiBleHRlcm5hbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBkcmFmdERiQ29udGV4dCAtPiBkYkRyYWZ0cyAiRUYgQ29yZSBxdWVyaWVzIgoKICAgICAgICAjIOKUgOKUgCBEcmFmdFNlcnZpY2U6IGNvbXBvbmVudCDihpIgY29tcG9uZW50IOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIGRyYWZ0RW5kcG9pbnRzIC0+IGRyYWZ0RGJDb250ZXh0ICJDUlVEIG9wZXJhdGlvbnMiCgogICAgICAgICMg4pSA4pSAIE5ld3NsZXR0ZXJTZXJ2aWNlOiBjb21wb25lbnQg4oaSIGV4dGVybmFsIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIHN1YnNjcmliZXJDbGllbnQgICAgICAgLT4gc3Vic2NyaWJlclNlcnZpY2UgIkdFVCAvc3Vic2NyaWJlcnMgKGNpcmN1aXQtYnJlYWtlcikiCiAgICAgICAgc3Vic2NyaWJlclF1ZXVlQ29uc3VtZXIgLT4gcmFiYml0TVEgIklNb2RlbC5CYXNpY0NvbnN1bWUgb24gc3Vic2NyaWJlcnMgcXVldWUiCgogICAgICAgICMg4pSA4pSAIE5ld3NsZXR0ZXJTZXJ2aWNlOiBjb21wb25lbnQg4oaSIGNvbXBvbmVudCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBuZXdzbGV0dGVyRW5kcG9pbnRzICAgIC0+IHN1YnNjcmliZXJDbGllbnQgIkdldFN1YnNjcmliZXJzQXN5bmMoKSIKCiAgICAgICAgIyDilIDilIAgUHJvZmFuaXR5U2VydmljZTogY29tcG9uZW50IOKGkiBleHRlcm5hbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBwcm9mYW5pdHlEYkNvbnRleHQgLT4gZGJQcm9mYW5pdHkgIkVGIENvcmUgcXVlcmllcyIKCiAgICAgICAgIyDilIDilIAgUHJvZmFuaXR5U2VydmljZTogY29tcG9uZW50IOKGkiBjb21wb25lbnQg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgcHJvZmFuaXR5RW5kcG9pbnRzIC0+IHByb2Zhbml0eURiQ29udGV4dCAiUXVlcnkgd29yZHM7IGNhc2UtaW5zZW5zaXRpdmUgdGV4dCBjaGVjazsgYWRkL2RlbGV0ZSIKCiAgICAgICAgIyDilIDilIAgUHVibGlzaGVyU2VydmljZTogY29tcG9uZW50IOKGkiBleHRlcm5hbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBhcnRpY2xlUXVldWVQdWJsaXNoZXIgLT4gcmFiYml0TVEgIklNb2RlbC5CYXNpY1B1Ymxpc2ggdG8gYXJ0aWNsZXMgcXVldWUiCgogICAgICAgICMg4pSA4pSAIFB1Ymxpc2hlclNlcnZpY2U6IGNvbXBvbmVudCDihpIgY29tcG9uZW50IOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIHB1Ymxpc2hlckVuZHBvaW50cyAtPiBhcnRpY2xlUXVldWVQdWJsaXNoZXIgIlB1Ymxpc2goQXJ0aWNsZU1lc3NhZ2UpIgoKICAgICAgICAjIOKUgOKUgCBTdWJzY3JpYmVyU2VydmljZTogY29tcG9uZW50IOKGkiBleHRlcm5hbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBzdWJzY3JpYmVyRGJDb250ZXh0ICAgICAgLT4gZGJTdWJzY3JpYmVycyAiRUYgQ29yZSBxdWVyaWVzIgogICAgICAgIHN1YnNjcmliZXJRdWV1ZVB1Ymxpc2hlciAtPiByYWJiaXRNUSAgICAgICJJTW9kZWwuQmFzaWNQdWJsaXNoIHRvIHN1YnNjcmliZXJzIHF1ZXVlIgogICAgICAgIGZlYXR1cmVIdWJNaWRkbGV3YXJlICAgICAtPiBmZWF0dXJlSHViICAgICJHZXRGbGFnKHN1YnNjcmliZXJfc2VydmljZV9lbmFibGVkKSIKCiAgICAgICAgIyDilIDilIAgU3Vic2NyaWJlclNlcnZpY2U6IGNvbXBvbmVudCDihpIgY29tcG9uZW50IOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIHN1YnNjcmliZXJFbmRwb2ludHMgLT4gc3Vic2NyaWJlckRiQ29udGV4dCAgICAgICJBZGQgLyBRdWVyeSAvIERlbGV0ZSIKICAgICAgICBzdWJzY3JpYmVyRW5kcG9pbnRzIC0+IHN1YnNjcmliZXJRdWV1ZVB1Ymxpc2hlciAiUHVibGlzaChzdWJzY3JpYmVyKSIKCiAgICAgICAgIyDilIDilIAgRW50cnktcG9pbnQgcmVsYXRpb25zaGlwcyByZXF1aXJlZCBieSBDNCBkeW5hbWljIHZpZXdzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIHB1Ymxpc2hlciAgICAtPiBwdWJsaXNoZXJFbmRwb2ludHMgICAgICAiUE9TVCAvcHVibGlzaCIKICAgICAgICBuZ2lueCAgICAgICAgLT4gYXJ0aWNsZUVuZHBvaW50cyAgICAgICAgIlJvdXRlcyBIVFRQIHJlcXVlc3QiCiAgICAgICAgcmFiYml0TVEgICAgIC0+IGFydGljbGVRdWV1ZUNvbnN1bWVyICAgICJEZWxpdmVycyBBcnRpY2xlTWVzc2FnZSIKICAgICAgICB1c2VyICAgICAgICAgLT4gY29tbWVudEVuZHBvaW50cyAgICAgICAgIlBPU1QgL2NvbW1lbnRzIgogICAgICAgIHVzZXIgICAgICAgICAtPiBzdWJzY3JpYmVyRW5kcG9pbnRzICAgICAiUE9TVCAvc3Vic2NyaWJlcnMiCiAgICAgICAgcmFiYml0TVEgICAgIC0+IHN1YnNjcmliZXJRdWV1ZUNvbnN1bWVyICJEZWxpdmVycyBTdWJzY3JpYmVyTWVzc2FnZSIKICAgIH0KCiAgICB2aWV3cyB7CgogICAgICAgICMg4pSA4pSAIEMxIOKUgCBTeXN0ZW0gQ29udGV4dCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBzeXN0ZW1Db250ZXh0IHN5c3RlbSAiQzFfU3lzdGVtQ29udGV4dCIgIkMxIOKAlCBTeXN0ZW0gQ29udGV4dDogZXh0ZXJuYWwgYWN0b3JzIGFuZCB0aGUgSGFwcHlIZWFkbGluZXMgc3lzdGVtIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICAjIOKUgOKUgCBDMiDilIAgQ29udGFpbmVycyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBjb250YWluZXIgc3lzdGVtICJDMl9Db250YWluZXJzIiAiQzIg4oCUIENvbnRhaW5lcjogYWxsIERvY2tlciBzZXJ2aWNlcyBhbmQgdGhlaXIgaW50ZXJhY3Rpb25zIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICAjIOKUgOKUgCBDMyDilIAgQ29tcG9uZW50cyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICBjb21wb25lbnQgYXJ0aWNsZVNlcnZpY2UgIkMzX0FydGljbGVTZXJ2aWNlIiAiQzMg4oCUIEFydGljbGVTZXJ2aWNlIGludGVybmFsIGNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBjb21tZW50U2VydmljZSAiQzNfQ29tbWVudFNlcnZpY2UiICJDMyDigJQgQ29tbWVudFNlcnZpY2UgaW50ZXJuYWwgY29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGRyYWZ0U2VydmljZSAiQzNfRHJhZnRTZXJ2aWNlIiAiQzMg4oCUIERyYWZ0U2VydmljZSBpbnRlcm5hbCBjb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgbmV3c2xldHRlclNlcnZpY2UgIkMzX05ld3NsZXR0ZXJTZXJ2aWNlIiAiQzMg4oCUIE5ld3NsZXR0ZXJTZXJ2aWNlIGludGVybmFsIGNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBwcm9mYW5pdHlTZXJ2aWNlICJDM19Qcm9mYW5pdHlTZXJ2aWNlIiAiQzMg4oCUIFByb2Zhbml0eVNlcnZpY2UgaW50ZXJuYWwgY29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IHB1Ymxpc2hlclNlcnZpY2UgIkMzX1B1Ymxpc2hlclNlcnZpY2UiICJDMyDigJQgUHVibGlzaGVyU2VydmljZSBpbnRlcm5hbCBjb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgc3Vic2NyaWJlclNlcnZpY2UgIkMzX1N1YnNjcmliZXJTZXJ2aWNlIiAiQzMg4oCUIFN1YnNjcmliZXJTZXJ2aWNlIGludGVybmFsIGNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgICMg4pSA4pSAIEM0IOKUgCBEeW5hbWljIGZsb3dzIChjb2RlLWxldmVsIGludGVyYWN0aW9uIHNlcXVlbmNlcykg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgIwogICAgICAgICMgRHluYW1pYyB2aWV3cyBtdXN0IGJlIHNjb3BlZCB0byBhIGNvbnRhaW5lciAobm90IHN5c3RlbSkgdG8gcmVmZXJlbmNlCiAgICAgICAgIyBjb21wb25lbnRzLiBDcm9zcy1zZXJ2aWNlIGZsb3dzIGFyZSBzcGxpdCBpbnRvIG9uZSB2aWV3IHBlciBjb250YWluZXIuCgogICAgICAgICMgQzQg4oCUIFB1Ymxpc2ggYXJ0aWNsZSAoUHVibGlzaGVyU2VydmljZSBzaWRlKQogICAgICAgIGR5bmFtaWMgcHVibGlzaGVyU2VydmljZSAiQzRfUHVibGlzaEFydGljbGUiICJDNCDigJQgUE9TVCAvcHVibGlzaDogUHVibGlzaGVyU2VydmljZSBjb2RlIGZsb3ciIHsKICAgICAgICAgICAgcHVibGlzaGVyIC0+IHB1Ymxpc2hlckVuZHBvaW50cyAiMS4gUE9TVCAvcHVibGlzaCB7dGl0bGUsY29udGVudCxhdXRob3IscmVnaW9ufSIKICAgICAgICAgICAgcHVibGlzaGVyRW5kcG9pbnRzIC0+IGFydGljbGVRdWV1ZVB1Ymxpc2hlciAiMi4gUHVibGlzaChuZXcgQXJ0aWNsZU1lc3NhZ2V7SWQ9R3VpZC5OZXdHdWlkKCl9KSIKICAgICAgICAgICAgYXJ0aWNsZVF1ZXVlUHVibGlzaGVyIC0+IHJhYmJpdE1RICIzLiBJTW9kZWwuQmFzaWNQdWJsaXNoIHRvIGFydGljbGVzIHF1ZXVlICsgVzNDIHRyYWNlcGFyZW50IGhlYWRlciIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgIyBDNCDigJQgQ29uc3VtZSBhcnRpY2xlIChBcnRpY2xlU2VydmljZSBzaWRlKQogICAgICAgIGR5bmFtaWMgYXJ0aWNsZVNlcnZpY2UgIkM0X0NvbnN1bWVBcnRpY2xlIiAiQzQg4oCUIEFydGljbGVRdWV1ZSBjb25zdW1lOiBBcnRpY2xlU2VydmljZSBjb2RlIGZsb3ciIHsKICAgICAgICAgICAgcmFiYml0TVEgLT4gYXJ0aWNsZVF1ZXVlQ29uc3VtZXIgIjEuIElNb2RlbC5CYXNpY0NvbnN1bWUg4oCUIHJlY2VpdmVzIEFydGljbGVNZXNzYWdlIgogICAgICAgICAgICBhcnRpY2xlUXVldWVDb25zdW1lciAtPiBhcnRpY2xlRGJDb250ZXh0RmFjdG9yeSAiMi4gQ3JlYXRlRm9yUmVnaW9uKG1zZy5SZWdpb24pIgogICAgICAgICAgICBhcnRpY2xlRGJDb250ZXh0RmFjdG9yeSAtPiBkYkFydGljbGVzICIzLiBuZXcgQXJ0aWNsZURiQ29udGV4dChjb25uZWN0aW9uU3RyaW5nW3JlZ2lvbl0pIgogICAgICAgICAgICBhcnRpY2xlUXVldWVDb25zdW1lciAtPiBhcnRpY2xlQ2FjaGUgIjQuIFNldEFydGljbGVBc3luYyhhcnRpY2xlKSIKICAgICAgICAgICAgYXJ0aWNsZUNhY2hlIC0+IHJlZGlzQXJ0aWNsZXMgIjUuIElEYXRhYmFzZS5TdHJpbmdTZXRBc3luYyIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgIyBDNCDigJQgUmVhZCBhcnRpY2xlIHdpdGggY2FjaGUtYXNpZGUgKEFydGljbGVTZXJ2aWNlIHNpZGUpCiAgICAgICAgZHluYW1pYyBhcnRpY2xlU2VydmljZSAiQzRfUmVhZEFydGljbGUiICJDNCDigJQgR0VUIC9hcnRpY2xlczogY2FjaGUtYXNpZGUgY29kZSBmbG93IiB7CiAgICAgICAgICAgIG5naW54IC0+IGFydGljbGVFbmRwb2ludHMgIjEuIEdFVCAvYXJ0aWNsZXM/cmVnaW9uPUV1cm9wZSAocm91bmQtcm9iaW4pIgogICAgICAgICAgICBhcnRpY2xlRW5kcG9pbnRzIC0+IGFydGljbGVDYWNoZSAiMi4gR2V0QXJ0aWNsZXNBc3luYyhyZWdpb24pIgogICAgICAgICAgICBhcnRpY2xlQ2FjaGUgLT4gcmVkaXNBcnRpY2xlcyAiM2EuIFN0cmluZ0dldEFzeW5jIOKGkiBISVQ6IHJldHVybiBsaXN0IgogICAgICAgICAgICBhcnRpY2xlRW5kcG9pbnRzIC0+IGFydGljbGVEYkNvbnRleHRGYWN0b3J5ICIzYi4gQ3JlYXRlRm9yUmVnaW9uKEV1cm9wZSkg4oCUIGNhY2hlIE1JU1Mgb25seSIKICAgICAgICAgICAgYXJ0aWNsZURiQ29udGV4dEZhY3RvcnkgLT4gZGJBcnRpY2xlcyAiNGIuIFNFTEVDVCAqIEZST00gQXJ0aWNsZXMgV0hFUkUgUmVnaW9uPUV1cm9wZSIKICAgICAgICAgICAgYXJ0aWNsZUVuZHBvaW50cyAtPiBhcnRpY2xlQ2FjaGUgIjViLiBTZXRBcnRpY2xlc0FzeW5jKEV1cm9wZSwgbGlzdCwgdHRsOjE1bWluKSIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgIyBDNCDigJQgU3VibWl0IGNvbW1lbnQgd2l0aCBjaXJjdWl0LWJyZWFrZXIgKENvbW1lbnRTZXJ2aWNlIHNpZGUpCiAgICAgICAgZHluYW1pYyBjb21tZW50U2VydmljZSAiQzRfU3VibWl0Q29tbWVudCIgIkM0IOKAlCBQT1NUIC9jb21tZW50czogY2lyY3VpdC1icmVha2VyIGNvZGUgZmxvdyIgewogICAgICAgICAgICB1c2VyIC0+IGNvbW1lbnRFbmRwb2ludHMgIjEuIFBPU1QgL2NvbW1lbnRzIHthcnRpY2xlSWQsIGF1dGhvciwgY29udGVudH0iCiAgICAgICAgICAgIGNvbW1lbnRFbmRwb2ludHMgLT4gcHJvZmFuaXR5Q2xpZW50ICIyLiBDaGVja1RleHRBc3luYyhjb250ZW50KSIKICAgICAgICAgICAgcHJvZmFuaXR5Q2xpZW50IC0+IHByb2Zhbml0eVNlcnZpY2UgIjMuIFBPU1QgL2NoZWNrIFtQb2xseSBjaXJjdWl0LWJyZWFrZXJdIgogICAgICAgICAgICBjb21tZW50RW5kcG9pbnRzIC0+IGNvbW1lbnREYkNvbnRleHQgIjQuIGRiLkNvbW1lbnRzLkFkZCh7U3RhdHVzPUFwcHJvdmVkfSk7IFNhdmVDaGFuZ2VzQXN5bmMoKSIKICAgICAgICAgICAgY29tbWVudEVuZHBvaW50cyAtPiBjb21tZW50Q2FjaGUgIjUuIEludmFsaWRhdGVBc3luYyhhcnRpY2xlSWQpIgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICAjIEM0IOKAlCBQZW5kaW5nIGNvbW1lbnQgcmV0cnkgYmFja2dyb3VuZCBmbG93IChDb21tZW50U2VydmljZSBzaWRlKQogICAgICAgIGR5bmFtaWMgY29tbWVudFNlcnZpY2UgIkM0X1BlbmRpbmdDb21tZW50UmV0cnkiICJDNCDigJQgUGVuZGluZ0NvbW1lbnRQcm9jZXNzb3I6IGJhY2tncm91bmQgcmVjb3ZlcnkgZmxvdyIgewogICAgICAgICAgICBwZW5kaW5nQ29tbWVudFByb2Nlc3NvciAtPiBjb21tZW50RGJDb250ZXh0ICIxLiBFdmVyeSAzMHM6IFdIRVJFIFN0YXR1cyA9IFBlbmRpbmciCiAgICAgICAgICAgIHBlbmRpbmdDb21tZW50UHJvY2Vzc29yIC0+IHByb2Zhbml0eUNsaWVudCAiMi4gQ2hlY2tUZXh0QXN5bmMoY29tbWVudC5Db250ZW50KSIKICAgICAgICAgICAgcHJvZmFuaXR5Q2xpZW50IC0+IHByb2Zhbml0eVNlcnZpY2UgIjMuIFBPU1QgL2NoZWNrIOKAlCBjaXJjdWl0IG5vdyBjbG9zZWQiCiAgICAgICAgICAgIHBlbmRpbmdDb21tZW50UHJvY2Vzc29yIC0+IGNvbW1lbnREYkNvbnRleHQgIjQuIGNvbW1lbnQuU3RhdHVzID0gQXBwcm92ZWR8UmVqZWN0ZWQ7IFNhdmVDaGFuZ2VzQXN5bmMoKSIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgIyBDNCDigJQgTmV3IHN1YnNjcmliZXIgd2VsY29tZS1tYWlsIGZsb3cgKFN1YnNjcmliZXJTZXJ2aWNlIHNpZGUpCiAgICAgICAgZHluYW1pYyBzdWJzY3JpYmVyU2VydmljZSAiQzRfTmV3U3Vic2NyaWJlciIgIkM0IOKAlCBQT1NUIC9zdWJzY3JpYmVyczogd2VsY29tZS1tYWlsIGNvZGUgZmxvdyIgewogICAgICAgICAgICB1c2VyIC0+IHN1YnNjcmliZXJFbmRwb2ludHMgIjEuIFBPU1QgL3N1YnNjcmliZXJzIHtlbWFpbH0iCiAgICAgICAgICAgIGZlYXR1cmVIdWJNaWRkbGV3YXJlIC0+IGZlYXR1cmVIdWIgIjIuIEdldEZsYWcoc3Vic2NyaWJlcl9zZXJ2aWNlX2VuYWJsZWQpIOKGkiB0cnVlIgogICAgICAgICAgICBzdWJzY3JpYmVyRW5kcG9pbnRzIC0+IHN1YnNjcmliZXJEYkNvbnRleHQgIjMuIGRiLlN1YnNjcmliZXJzLkFkZChuZXcgU3Vic2NyaWJlcntFbWFpbH0pOyBTYXZlQ2hhbmdlc0FzeW5jKCkiCiAgICAgICAgICAgIHN1YnNjcmliZXJFbmRwb2ludHMgLT4gc3Vic2NyaWJlclF1ZXVlUHVibGlzaGVyICI0LiBQdWJsaXNoKHN1YnNjcmliZXIpIgogICAgICAgICAgICBzdWJzY3JpYmVyUXVldWVQdWJsaXNoZXIgLT4gcmFiYml0TVEgIjUuIElNb2RlbC5CYXNpY1B1Ymxpc2ggdG8gc3Vic2NyaWJlcnMgcXVldWUiCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgICMgQzQg4oCUIFdlbGNvbWUtbWFpbCBjb25zdW1lIGZsb3cgKE5ld3NsZXR0ZXJTZXJ2aWNlIHNpZGUpCiAgICAgICAgZHluYW1pYyBuZXdzbGV0dGVyU2VydmljZSAiQzRfV2VsY29tZU1haWxDb25zdW1lIiAiQzQg4oCUIFN1YnNjcmliZXIgcXVldWUgY29uc3VtZTogTmV3c2xldHRlclNlcnZpY2UgY29kZSBmbG93IiB7CiAgICAgICAgICAgIHJhYmJpdE1RIC0+IHN1YnNjcmliZXJRdWV1ZUNvbnN1bWVyICIxLiBJTW9kZWwuQmFzaWNDb25zdW1lIOKAlCByZWNlaXZlcyBTdWJzY3JpYmVyTWVzc2FnZSIKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgIyDilIDilIAgU3R5bGVzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgIHN0eWxlcyB7CiAgICAgICAgICAgIGVsZW1lbnQgIlBlcnNvbiIgewogICAgICAgICAgICAgICAgc2hhcGUgUGVyc29uCiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMwODQyN0IKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJTb2Z0d2FyZSBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzExNjhCRAogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbnRhaW5lciIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNDM4REQ1CiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiQ29tcG9uZW50IiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM4NUJCRDkKICAgICAgICAgICAgICAgIGNvbG9yICMwMDAwMDAKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJJbmZyYXN0cnVjdHVyZSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjOTk5OTk5CiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiTWVzc2FnaW5nIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICNFODgyNUMKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJDYWNoZSIgewogICAgICAgICAgICAgICAgc2hhcGUgQ3lsaW5kZXIKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgI0M3NDcyRQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkRhdGFiYXNlIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBDeWxpbmRlcgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjQjNDOUU3CiAgICAgICAgICAgICAgICBjb2xvciAjMDAwMDAwCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiTW9uaXRvcmluZyIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNkNCMzNFCiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIHRoZW1lIGRlZmF1bHQKICAgIH0KfQ==",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "componentViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "18",
+      "description" : "C3 — ArticleService internal components",
+      "elements" : [ {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "23",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_ArticleService",
+      "name" : "Component View: HappyHeadlines - ArticleService",
+      "order" : 3,
+      "relationships" : [ {
+        "id" : "103"
+      }, {
+        "id" : "104"
+      }, {
+        "id" : "71"
+      }, {
+        "id" : "72"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "76"
+      }, {
+        "id" : "77"
+      }, {
+        "id" : "78"
+      }, {
+        "id" : "79"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "24",
+      "description" : "C3 — CommentService internal components",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_CommentService",
+      "name" : "Component View: HappyHeadlines - CommentService",
+      "order" : 4,
+      "relationships" : [ {
+        "id" : "106"
+      }, {
+        "id" : "80"
+      }, {
+        "id" : "81"
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "83"
+      }, {
+        "id" : "84"
+      }, {
+        "id" : "85"
+      }, {
+        "id" : "86"
+      }, {
+        "id" : "87"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "30",
+      "description" : "C3 — DraftService internal components",
+      "elements" : [ {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_DraftService",
+      "name" : "Component View: HappyHeadlines - DraftService",
+      "order" : 5,
+      "relationships" : [ {
+        "id" : "88"
+      }, {
+        "id" : "89"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "33",
+      "description" : "C3 — NewsletterService internal components",
+      "elements" : [ {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_NewsletterService",
+      "name" : "Component View: HappyHeadlines - NewsletterService",
+      "order" : 6,
+      "relationships" : [ {
+        "id" : "110"
+      }, {
+        "id" : "64"
+      }, {
+        "id" : "90"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "92"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "37",
+      "description" : "C3 — ProfanityService internal components",
+      "elements" : [ {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "39",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_ProfanityService",
+      "name" : "Component View: HappyHeadlines - ProfanityService",
+      "order" : 7,
+      "relationships" : [ {
+        "id" : "93"
+      }, {
+        "id" : "94"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "40",
+      "description" : "C3 — PublisherService internal components",
+      "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_PublisherService",
+      "name" : "Component View: HappyHeadlines - PublisherService",
+      "order" : 8,
+      "relationships" : [ {
+        "id" : "102"
+      }, {
+        "id" : "95"
+      }, {
+        "id" : "96"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "43",
+      "description" : "C3 — SubscriberService internal components",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "C3_SubscriberService",
+      "name" : "Component View: HappyHeadlines - SubscriberService",
+      "order" : 9,
+      "relationships" : [ {
+        "id" : "100"
+      }, {
+        "id" : "101"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "97"
+      }, {
+        "id" : "98"
+      }, {
+        "id" : "99"
+      } ]
+    } ],
+    "configuration" : {
+      "styles" : {
+        "elements" : [ {
+          "background" : "#c7472e",
+          "color" : "#ffffff",
+          "shape" : "Cylinder",
+          "tag" : "Cache"
+        }, {
+          "background" : "#85bbd9",
+          "color" : "#000000",
+          "tag" : "Component"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "tag" : "Container"
+        }, {
+          "background" : "#b3c9e7",
+          "color" : "#000000",
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#999999",
+          "color" : "#ffffff",
+          "tag" : "Infrastructure"
+        }, {
+          "background" : "#e8825c",
+          "color" : "#ffffff",
+          "tag" : "Messaging"
+        }, {
+          "background" : "#6cb33e",
+          "color" : "#ffffff",
+          "tag" : "Monitoring"
+        }, {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        } ]
+      },
+      "terminology" : { },
+      "themes" : [ "https://static.structurizr.com/themes/default/theme.json" ]
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C2 — Container: all Docker services and their interactions",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "40",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "C2_Containers",
+      "name" : "Container View: HappyHeadlines",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "105"
+      }, {
+        "id" : "107"
+      }, {
+        "id" : "109"
+      }, {
+        "id" : "111"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "50"
+      }, {
+        "id" : "52"
+      }, {
+        "id" : "53"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "55"
+      }, {
+        "id" : "56"
+      }, {
+        "id" : "57"
+      }, {
+        "id" : "58"
+      }, {
+        "id" : "59"
+      }, {
+        "id" : "60"
+      }, {
+        "id" : "61"
+      }, {
+        "id" : "62"
+      }, {
+        "id" : "63"
+      }, {
+        "id" : "64"
+      }, {
+        "id" : "65"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "67"
+      }, {
+        "id" : "68"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "70"
+      } ],
+      "softwareSystemId" : "3"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — POST /publish: PublisherService code flow",
+      "elementId" : "40",
+      "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_PublishArticle",
+      "name" : "Dynamic View: HappyHeadlines - PublisherService",
+      "order" : 10,
+      "relationships" : [ {
+        "description" : "1. POST /publish {title,content,author,region}",
+        "id" : "102",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "2. Publish(new ArticleMessage{Id=Guid.NewGuid()})",
+        "id" : "96",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "3. IModel.BasicPublish to articles queue + W3C traceparent header",
+        "id" : "95",
+        "order" : "3",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — ArticleQueue consume: ArticleService code flow",
+      "elementId" : "18",
+      "elements" : [ {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_ConsumeArticle",
+      "name" : "Dynamic View: HappyHeadlines - ArticleService",
+      "order" : 11,
+      "relationships" : [ {
+        "description" : "1. IModel.BasicConsume — receives ArticleMessage",
+        "id" : "104",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "2. CreateForRegion(msg.Region)",
+        "id" : "76",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "3. new ArticleDbContext(connectionString[region])",
+        "id" : "72",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "4. SetArticleAsync(article)",
+        "id" : "77",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "5. IDatabase.StringSetAsync",
+        "id" : "71",
+        "order" : "5",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — GET /articles: cache-aside code flow",
+      "elementId" : "18",
+      "elements" : [ {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_ReadArticle",
+      "name" : "Dynamic View: HappyHeadlines - ArticleService",
+      "order" : 12,
+      "relationships" : [ {
+        "description" : "1. GET /articles?region=Europe (round-robin)",
+        "id" : "103",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "2. GetArticlesAsync(region)",
+        "id" : "75",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "3a. StringGetAsync → HIT: return list",
+        "id" : "71",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "3b. CreateForRegion(Europe) — cache MISS only",
+        "id" : "74",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "4b. SELECT * FROM Articles WHERE Region=Europe",
+        "id" : "72",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "5b. SetArticlesAsync(Europe, list, ttl:15min)",
+        "id" : "75",
+        "order" : "6",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — POST /comments: circuit-breaker code flow",
+      "elementId" : "24",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_SubmitComment",
+      "name" : "Dynamic View: HappyHeadlines - CommentService",
+      "order" : 13,
+      "relationships" : [ {
+        "description" : "1. POST /comments {articleId, author, content}",
+        "id" : "106",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "2. CheckTextAsync(content)",
+        "id" : "85",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "3. POST /check [Polly circuit-breaker]",
+        "id" : "82",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "4. db.Comments.Add({Status=Approved}); SaveChangesAsync()",
+        "id" : "83",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "5. InvalidateAsync(articleId)",
+        "id" : "84",
+        "order" : "5",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — PendingCommentProcessor: background recovery flow",
+      "elementId" : "24",
+      "elements" : [ {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_PendingCommentRetry",
+      "name" : "Dynamic View: HappyHeadlines - CommentService",
+      "order" : 14,
+      "relationships" : [ {
+        "description" : "1. Every 30s: WHERE Status = Pending",
+        "id" : "86",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "2. CheckTextAsync(comment.Content)",
+        "id" : "87",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "3. POST /check — circuit now closed",
+        "id" : "82",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "4. comment.Status = Approved|Rejected; SaveChangesAsync()",
+        "id" : "86",
+        "order" : "4",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — POST /subscribers: welcome-mail code flow",
+      "elementId" : "43",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_NewSubscriber",
+      "name" : "Dynamic View: HappyHeadlines - SubscriberService",
+      "order" : 15,
+      "relationships" : [ {
+        "description" : "1. POST /subscribers {email}",
+        "id" : "108",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "2. GetFlag(subscriber_service_enabled) → true",
+        "id" : "99",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "3. db.Subscribers.Add(new Subscriber{Email}); SaveChangesAsync()",
+        "id" : "100",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "4. Publish(subscriber)",
+        "id" : "101",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "5. IModel.BasicPublish to subscribers queue",
+        "id" : "98",
+        "order" : "5",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C4 — Subscriber queue consume: NewsletterService code flow",
+      "elementId" : "33",
+      "elements" : [ {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "C4_WelcomeMailConsume",
+      "name" : "Dynamic View: HappyHeadlines - NewsletterService",
+      "order" : 16,
+      "relationships" : [ {
+        "description" : "1. IModel.BasicConsume — receives SubscriberMessage",
+        "id" : "110",
+        "order" : "1",
+        "response" : false
+      } ]
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "C1 — System Context: external actors and the HappyHeadlines system",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "C1_SystemContext",
+      "name" : "System Context View: HappyHeadlines",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "49"
+      }, {
+        "id" : "51"
+      } ],
+      "softwareSystemId" : "3"
+    } ]
+  }
+}

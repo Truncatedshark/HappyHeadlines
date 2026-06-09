@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.featurehub.io)",
+      "WebFetch(domain:github.com)",
+      "Bash(docker compose build:*)",
+      "WebFetch(domain:www.nuget.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.green-coding.io)",
+      "Bash(cmd /c dir:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(docker compose exec:*)"
+    ]
+  }
+}
